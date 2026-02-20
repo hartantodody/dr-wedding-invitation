@@ -25,9 +25,38 @@ type AppCopy = {
     countdownTitle: string
     scrollHint: string
   }
+  saveTheDate: {
+    sectionLabel: string
+    title: string
+    subtitle: string
+    dateLabel: string
+    timeLabel: string
+    ceremonyLabel: string
+    receptionLabel: string
+    familyOnlyLabel: string
+    shiftLabel: string
+    breakLabel: string
+    venueLabel: string
+    addressLabel: string
+    countdownTitle: string
+    saveDateButton: string
+    mapsButton: string
+  }
   introduction: {
     sectionLabel: string
     title: string
+    greetingArab: string
+    greetingTranslation: string
+    bismillahArab: string
+    bismillahTranslation: string
+    ayahArab: string
+    ayahTranslation: string
+    ayahSource: string
+    openingInviteLine1: string
+    openingInviteLine2: string
+    skipLabel: string
+    groomLabel: string
+    brideLabel: string
     groomPrefix: string
     bridePrefix: string
   }
@@ -37,17 +66,49 @@ type AppCopy = {
     quoteCaption: string
     scrollHint: string
   }
+  weddingGift: {
+    sectionLabel: string
+    title: string
+    subtitle: string
+    groomAccountLabel: string
+    brideAccountLabel: string
+    accountHolderLabel: string
+    copyButton: string
+    copiedButton: string
+  }
+  rsvp: {
+    sectionLabel: string
+    title: string
+    subtitle: string
+    nameLabel: string
+    attendanceLabel: string
+    attendancePresent: string
+    attendanceAbsent: string
+    wishesLabel: string
+    wishesPlaceholder: string
+    submitButton: string
+    submitSuccess: string
+    messagesTitle: string
+    messagesEmpty: string
+  }
   sidebar: {
     title: string
     sections: {
       hero: string
       introduction: string
+      saveTheDate: string
       gallery: string
+      weddingGift: string
+      rsvp: string
     }
     open: string
     close: string
     show: string
     hide: string
+  }
+  footer: {
+    title: string
+    subtitle: string
   }
   music: {
     play: string
@@ -71,9 +132,41 @@ export const COPY: Record<AppLanguage, AppCopy> = {
       countdownTitle: 'Hitung Mundur Hari Bahagia',
       scrollHint: 'Scroll Untuk Gallery'
     },
+    saveTheDate: {
+      sectionLabel: 'Save The Date',
+      title: 'Lokasi & Waktu Acara',
+      subtitle: 'Catat jadwalnya dan jumpa di hari bahagia kami.',
+      dateLabel: 'Tanggal',
+      timeLabel: 'Waktu',
+      ceremonyLabel: 'Akad',
+      receptionLabel: 'Resepsi',
+      familyOnlyLabel: '(hanya dihadiri oleh keluarga)',
+      shiftLabel: 'Shift',
+      breakLabel: 'Istirahat',
+      venueLabel: 'Lokasi',
+      addressLabel: 'Alamat',
+      countdownTitle: 'Hitung Mundur Hari Bahagia',
+      saveDateButton: 'Save The Date',
+      mapsButton: 'Lihat Lokasi'
+    },
     introduction: {
       sectionLabel: 'Introduction',
       title: 'Perkenalkan Kami',
+      greetingArab: 'اَلسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ',
+      greetingTranslation: 'Semoga keselamatan, rahmat, dan berkah Allah tercurah untukmu.',
+      bismillahArab: 'بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ',
+      bismillahTranslation: 'Dengan nama Allah Yang Maha Pengasih lagi Maha Penyayang.',
+      ayahArab:
+        'وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُمْ مِنْ أَنْفُسِكُمْ أَزْوَاجًا لِتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُمْ مَوَدَّةً وَرَحْمَةً',
+      ayahTranslation:
+        'Dan di antara tanda-tanda kebesaran-Nya ialah Dia menciptakan pasangan untukmu dari jenismu sendiri agar kamu merasa tenteram kepadanya, dan Dia menjadikan di antaramu kasih dan sayang.',
+      ayahSource: 'QS. Ar-Rum: 21',
+      openingInviteLine1: 'BY THE GRACE AND BLESSING OF ALLAH SWT,',
+      openingInviteLine2:
+        'WE INVITE YOU TO JOIN US IN CELEBRATING THE MARRIAGE OF OUR BELOVED CHILDREN',
+      skipLabel: 'Lewati',
+      groomLabel: 'The Groom',
+      brideLabel: 'The Bride',
       groomPrefix: 'Putra dari',
       bridePrefix: 'Putri dari'
     },
@@ -83,17 +176,52 @@ export const COPY: Record<AppLanguage, AppCopy> = {
       quoteCaption: 'Signature Dody & Ritza',
       scrollHint: 'Scroll ke bawah untuk geser gallery'
     },
+    weddingGift: {
+      sectionLabel: 'Wedding Gift',
+      title: 'Wedding Gift',
+      subtitle:
+        'Doa restu Anda adalah hadiah terindah, namun jika ingin berbagi kasih dapat melalui rekening berikut.',
+      groomAccountLabel: 'Rekening Dody',
+      brideAccountLabel: 'Rekening Ritza',
+      accountHolderLabel: 'Atas nama',
+      copyButton: 'Salin Nomor',
+      copiedButton: 'Tersalin'
+    },
+    rsvp: {
+      sectionLabel: 'RSVP & Wishes',
+      title: 'RSVP & Ucapan',
+      subtitle:
+        'Konfirmasi kehadiran dan tinggalkan pesan manis untuk kami di hari bahagia ini.',
+      nameLabel: 'Nama',
+      attendanceLabel: 'Kehadiran',
+      attendancePresent: 'Hadir',
+      attendanceAbsent: 'Berhalangan',
+      wishesLabel: 'Ucapan',
+      wishesPlaceholder: 'Tulis ucapan dan doa terbaik untuk kami...',
+      submitButton: 'Kirim RSVP',
+      submitSuccess: 'Terima kasih, pesanmu sudah masuk.',
+      messagesTitle: 'Pesan Tamu',
+      messagesEmpty:
+        'Belum ada pesan. Jadi yang pertama kasih doa terbaik untuk kami.'
+    },
     sidebar: {
       title: 'Navigasi',
       sections: {
         hero: 'Pembuka',
         introduction: 'Perkenalan',
-        gallery: 'Galeri'
+        saveTheDate: 'Save The Date',
+        gallery: 'Galeri',
+        weddingGift: 'Wedding Gift',
+        rsvp: 'RSVP & Ucapan'
       },
       open: 'Menu',
       close: 'Tutup',
       show: 'Tampil',
       hide: 'Sembunyi'
+    },
+    footer: {
+      title: 'Created by Dody & Ritza',
+      subtitle: 'Untuk merayakan kisah cinta kami.'
     },
     music: {
       play: 'Putar Musik',
@@ -121,9 +249,43 @@ export const COPY: Record<AppLanguage, AppCopy> = {
       countdownTitle: 'Countdown To The Day',
       scrollHint: 'Scroll For Gallery'
     },
+    saveTheDate: {
+      sectionLabel: 'Save The Date',
+      title: 'Date & Venue',
+      subtitle: 'Mark your calendar and celebrate this day with us.',
+      dateLabel: 'Date',
+      timeLabel: 'Time',
+      ceremonyLabel: 'Ceremony',
+      receptionLabel: 'Reception',
+      familyOnlyLabel: 'Family only',
+      shiftLabel: 'Shift',
+      breakLabel: 'Break',
+      venueLabel: 'Venue',
+      addressLabel: 'Address',
+      countdownTitle: 'Countdown To The Day',
+      saveDateButton: 'Save The Date',
+      mapsButton: 'Open Maps'
+    },
     introduction: {
       sectionLabel: 'Introduction',
       title: 'A Short Introduction',
+      greetingArab: 'اَلسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ',
+      greetingTranslation:
+        'May the peace, mercy, and blessings of Allah be upon you.',
+      bismillahArab: 'بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ',
+      bismillahTranslation:
+        'In the name of Allah, the Most Gracious, the Most Merciful.',
+      ayahArab:
+        'وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُمْ مِنْ أَنْفُسِكُمْ أَزْوَاجًا لِتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُمْ مَوَدَّةً وَرَحْمَةً',
+      ayahTranslation:
+        'And among His signs is that He created for you spouses from among yourselves so that you may find tranquility in them, and He placed between you affection and mercy.',
+      ayahSource: 'Quran 30:21',
+      openingInviteLine1: 'BY THE GRACE AND BLESSING OF ALLAH SWT,',
+      openingInviteLine2:
+        'WE INVITE YOU TO JOIN US IN CELEBRATING THE MARRIAGE OF OUR BELOVED CHILDREN',
+      skipLabel: 'Skip',
+      groomLabel: 'The Groom',
+      brideLabel: 'The Bride',
       groomPrefix: 'Son of',
       bridePrefix: 'Daughter of'
     },
@@ -133,17 +295,51 @@ export const COPY: Record<AppLanguage, AppCopy> = {
       quoteCaption: 'Dody & Ritza Signature',
       scrollHint: 'Scroll down to glide sideways'
     },
+    weddingGift: {
+      sectionLabel: 'Wedding Gift',
+      title: 'Wedding Gift',
+      subtitle:
+        'Your prayers are the greatest gift, but if you would like to share your blessing, here are our accounts.',
+      groomAccountLabel: "Dody's Account",
+      brideAccountLabel: "Ritza's Account",
+      accountHolderLabel: 'Account holder',
+      copyButton: 'Copy Number',
+      copiedButton: 'Copied'
+    },
+    rsvp: {
+      sectionLabel: 'RSVP & Wishes',
+      title: 'RSVP & Wishes',
+      subtitle:
+        'Please confirm your attendance and leave your warm wishes for our day.',
+      nameLabel: 'Name',
+      attendanceLabel: 'Attendance',
+      attendancePresent: 'Attending',
+      attendanceAbsent: 'Unable to Attend',
+      wishesLabel: 'Wishes',
+      wishesPlaceholder: 'Write your wishes for us...',
+      submitButton: 'Send RSVP',
+      submitSuccess: 'Thank you, your message has been sent.',
+      messagesTitle: 'Guest Messages',
+      messagesEmpty: 'No messages yet. Be the first to send your wishes.'
+    },
     sidebar: {
       title: 'Navigation',
       sections: {
         hero: 'Opening',
         introduction: 'Introduction',
-        gallery: 'Gallery'
+        saveTheDate: 'Save The Date',
+        gallery: 'Gallery',
+        weddingGift: 'Wedding Gift',
+        rsvp: 'RSVP & Wishes'
       },
       open: 'Menu',
       close: 'Close',
       show: 'Show',
       hide: 'Hide'
+    },
+    footer: {
+      title: 'Created by Dody & Ritza',
+      subtitle: 'For celebrating our wedding story.'
     },
     music: {
       play: 'Play Music',

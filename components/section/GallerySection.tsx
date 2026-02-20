@@ -1,13 +1,16 @@
 'use client'
 
+import { CaretLeft, CaretRight, X } from '@phosphor-icons/react'
 import {
+  AnimatePresence,
   motion,
   useMotionValueEvent,
   useScroll,
   useSpring,
   useTransform
 } from 'framer-motion'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import Image from 'next/image'
+import { useEffect, useRef, useState } from 'react'
 import { COPY, type AppLanguage } from '@/constant/i18n'
 import { GALLERY_ITEMS, type GalleryItem } from '@/constant/gallery'
 
@@ -16,16 +19,17 @@ type GallerySectionProps = {
   items?: GalleryItem[]
 }
 
+type ImageMeta = {
+  width: number
+  height: number
+  ratio: number
+  orientation: 'landscape' | 'portrait' | 'square'
+}
+
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value))
 
-const sizeVariants = [
-  'h-[56svh] w-[34vw] min-w-[420px]',
-  'h-[37svh] w-[22vw] min-w-[250px]',
-  'h-[44svh] w-[27vw] min-w-[320px]',
-  'h-[33svh] w-[18vw] min-w-[210px]',
-  'h-[52svh] w-[30vw] min-w-[380px]'
-] as const
+const cardHeightFactors = [0.56, 0.37, 0.44, 0.33, 0.52] as const
 
 const offsetVariants = [
   '-translate-y-[11svh]',
@@ -52,11 +56,12 @@ export default function GallerySection({
 
   const [progress, setProgress] = useState(0)
   const [maxTranslate, setMaxTranslate] = useState(0)
-
-  const sectionHeightVh = useMemo(
-    () => Math.max(280, Math.round(galleryItems.length * 36)),
-    [galleryItems.length]
+  const [sectionHeightPx, setSectionHeightPx] = useState(2800)
+  const [viewportSize, setViewportSize] = useState({ width: 1440, height: 900 })
+  const [imageMetaMap, setImageMetaMap] = useState<Record<string, ImageMeta>>(
+    {}
   )
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -69,7 +74,10 @@ export default function GallerySection({
     mass: 0.42
   })
 
-  const x = useTransform(smoothProgress, (value) => -maxTranslate * clamp(value, 0, 1))
+  const x = useTransform(
+    smoothProgress,
+    (value) => -maxTranslate * clamp(value, 0, 1)
+  )
 
   useMotionValueEvent(smoothProgress, 'change', (value) => {
     setProgress((previous) => {
@@ -79,12 +87,78 @@ export default function GallerySection({
   })
 
   useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    let isMounted = true
+
+    galleryItems.forEach((item) => {
+      if (imageMetaMap[item.id]) return
+
+      const image = new window.Image()
+      image.onload = () => {
+        if (!isMounted) return
+
+        const width = image.naturalWidth
+        const height = image.naturalHeight
+
+        if (!width || !height) return
+
+        const ratio = width / height
+        const orientation =
+          ratio > 1.02 ? 'landscape' : ratio < 0.98 ? 'portrait' : 'square'
+
+        setImageMetaMap((previous) => {
+          if (previous[item.id]) return previous
+
+          return {
+            ...previous,
+            [item.id]: {
+              width,
+              height,
+              ratio,
+              orientation
+            }
+          }
+        })
+      }
+      image.src = item.image
+    })
+
+    return () => {
+      isMounted = false
+    }
+  }, [galleryItems, imageMetaMap])
+
+  useEffect(() => {
     const track = trackRef.current
     if (!track) return
 
     const updateMeasurements = () => {
       const viewportWidth = window.innerWidth || 1
-      setMaxTranslate(Math.max(0, track.scrollWidth - viewportWidth))
+      const viewportHeight = window.innerHeight || 1
+      const nextTranslate = Math.max(0, track.scrollWidth - viewportWidth)
+      const endPauseSpace = Math.max(220, Math.round(viewportHeight * 0.34))
+      const nextHeight = Math.max(
+        viewportHeight * 2,
+        Math.round(viewportHeight + nextTranslate + endPauseSpace)
+      )
+
+      setViewportSize((previous) => {
+        if (
+          previous.width === viewportWidth &&
+          previous.height === viewportHeight
+        ) {
+          return previous
+        }
+
+        return { width: viewportWidth, height: viewportHeight }
+      })
+      setMaxTranslate((previous) =>
+        previous === nextTranslate ? previous : nextTranslate
+      )
+      setSectionHeightPx((previous) =>
+        previous === nextHeight ? previous : nextHeight
+      )
     }
 
     updateMeasurements()
@@ -97,7 +171,57 @@ export default function GallerySection({
       window.removeEventListener('resize', updateMeasurements)
       resizeObserver.disconnect()
     }
-  }, [galleryItems.length])
+  }, [galleryItems.length, imageMetaMap])
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow
+
+    if (selectedIndex !== null) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = previousOverflow
+    }
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [selectedIndex])
+
+  useEffect(() => {
+    if (selectedIndex === null) return
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setSelectedIndex(null)
+        return
+      }
+
+      if (event.key === 'ArrowRight') {
+        setSelectedIndex((current) => {
+          if (current === null) return 0
+          return (current + 1) % galleryItems.length
+        })
+        return
+      }
+
+      if (event.key === 'ArrowLeft') {
+        setSelectedIndex((current) => {
+          if (current === null) return 0
+          return (current - 1 + galleryItems.length) % galleryItems.length
+        })
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [galleryItems.length, selectedIndex])
+
+  const selectedItem =
+    selectedIndex === null ? null : galleryItems[selectedIndex]
+  const selectedPhotoNumber = selectedIndex === null ? 1 : selectedIndex + 1
 
   const activeSlide = Math.min(
     galleryItems.length,
@@ -108,19 +232,31 @@ export default function GallerySection({
     <section
       id='gallery'
       ref={sectionRef}
-      className='relative overflow-x-clip border-t border-[rgb(182_186_192/0.22)] md:min-h-[100svh]'
+      className='relative overflow-x-clip border-t border-[rgb(182_186_192/0.22)]'
       style={{
-        height: `${sectionHeightVh}svh`,
+        height: `${sectionHeightPx}px`,
         background:
           'radial-gradient(circle at 16% 10%, rgb(200 180 139 / 0.1), transparent 35%), linear-gradient(180deg, #17181a 0%, #111214 44%, #0b0b0c 100%)'
       }}
     >
-      <div
+      <motion.div
         aria-hidden='true'
         className='pointer-events-none absolute inset-[-12%] opacity-75'
         style={{
           background:
             'radial-gradient(130% 88% at 8% 6%, transparent 58%, rgb(200 180 139 / 0.18) 58.5%, transparent 59.2%), radial-gradient(108% 84% at 35% 35%, transparent 57%, rgb(200 180 139 / 0.14) 57.5%, transparent 58.4%), radial-gradient(130% 90% at 60% 20%, transparent 56%, rgb(200 180 139 / 0.12) 56.5%, transparent 57.4%), radial-gradient(130% 90% at 90% 62%, transparent 55%, rgb(200 180 139 / 0.1) 55.5%, transparent 56.4%)'
+        }}
+        animate={{
+          rotate: [0, 1.8, -1.2, 0],
+          x: [0, 16, -10, 0],
+          y: [0, -14, 8, 0],
+          scale: [1, 1.03, 0.99, 1],
+          opacity: [0.72, 0.84, 0.76, 0.72]
+        }}
+        transition={{
+          duration: 32,
+          repeat: Number.POSITIVE_INFINITY,
+          ease: 'easeInOut'
         }}
       />
       <div className='pointer-events-none absolute inset-0 opacity-[0.07] [background-image:radial-gradient(rgb(223_230_227/0.18)_0.5px,transparent_0.5px)] [background-size:4px_4px]' />
@@ -157,7 +293,7 @@ export default function GallerySection({
           <motion.div
             ref={trackRef}
             style={{ x }}
-            className='relative flex h-full items-center gap-5 px-[6vw] will-change-transform sm:gap-6'
+            className='relative flex h-full items-center gap-6 px-[12vw] will-change-transform sm:gap-7 sm:px-[15vw] lg:px-[18vw]'
           >
             <motion.article
               initial={{ opacity: 0, y: 26 }}
@@ -175,7 +311,61 @@ export default function GallerySection({
             </motion.article>
 
             {galleryItems.map((item, index) => {
-              const sizeClass = sizeVariants[index % sizeVariants.length]
+              const meta = imageMetaMap[item.id]
+              const imageRatio = clamp(meta?.ratio ?? 1, 0.58, 1.82)
+              const orientation = meta?.orientation ?? 'landscape'
+              const heightFactor =
+                cardHeightFactors[index % cardHeightFactors.length]
+              const isMobileViewport = viewportSize.width < 768
+
+              let cardWidthPx: number
+              let cardHeightPx: number
+
+              if (isMobileViewport) {
+                if (orientation === 'landscape') {
+                  const desiredLandscapeHeightPx = clamp(
+                    viewportSize.height * 0.44,
+                    300,
+                    460
+                  )
+
+                  const widthFromHeightPx =
+                    desiredLandscapeHeightPx * imageRatio
+                  cardWidthPx = clamp(
+                    widthFromHeightPx,
+                    viewportSize.width * 1.12,
+                    viewportSize.width * 1.85
+                  )
+                  cardHeightPx = clamp(cardWidthPx / imageRatio, 280, 460)
+                } else {
+                  const mobileWidthTargetPx =
+                    orientation === 'portrait'
+                      ? viewportSize.width * 0.68
+                      : viewportSize.width * 0.78
+
+                  cardWidthPx = clamp(mobileWidthTargetPx, 220, 410)
+                  const mobileHeightTargetPx = cardWidthPx / imageRatio
+
+                  cardHeightPx = clamp(
+                    mobileHeightTargetPx,
+                    240,
+                    Math.round(viewportSize.height * 0.76)
+                  )
+                }
+              } else {
+                const baseHeightPx = viewportSize.height * heightFactor
+                cardHeightPx = clamp(baseHeightPx, 220, 780)
+                const computedWidthPx = cardHeightPx * imageRatio
+                const minWidthPx =
+                  orientation === 'portrait'
+                    ? 190
+                    : orientation === 'square'
+                      ? 230
+                      : 260
+                const maxWidthPx = Math.round(viewportSize.width * 0.68)
+                cardWidthPx = clamp(computedWidthPx, minWidthPx, maxWidthPx)
+              }
+
               const offsetClass = offsetVariants[index % offsetVariants.length]
 
               return (
@@ -184,26 +374,39 @@ export default function GallerySection({
                   initial={{ opacity: 0, y: 30, scale: 0.982 }}
                   whileInView={{ opacity: 1, y: 0, scale: 1 }}
                   viewport={{ once: true, amount: 0.35 }}
-                  transition={{ ...revealTransition, delay: 0.14 + index * 0.04 }}
-                  className={`relative shrink-0 overflow-hidden rounded-[1.65rem] ${sizeClass} ${offsetClass}`}
+                  transition={{
+                    ...revealTransition,
+                    delay: 0.14 + index * 0.04
+                  }}
+                  className={`relative shrink-0 overflow-hidden rounded-[1.65rem] ${offsetClass}`}
+                  style={{
+                    width: `${cardWidthPx}px`,
+                    height: `${cardHeightPx}px`
+                  }}
                 >
-                  <div className='relative h-full w-full overflow-hidden rounded-[1.65rem] border border-[rgb(223_230_227/0.3)] shadow-[0_24px_70px_rgb(0_0_0/0.32),inset_0_1px_0_rgb(223_230_227/0.08)]'>
-                    <div
-                      aria-hidden='true'
-                      className='absolute inset-0 bg-cover bg-center'
-                      style={{ backgroundImage: `url('${item.image}')` }}
+                  <button
+                    type='button'
+                    onClick={() => setSelectedIndex(index)}
+                    className='group relative block h-full w-full overflow-hidden rounded-[1.65rem] border border-[rgb(223_230_227/0.3)] shadow-[0_24px_70px_rgb(0_0_0/0.32),inset_0_1px_0_rgb(223_230_227/0.08)] transition hover:border-[rgb(223_230_227/0.56)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-soft)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(12_12_14)]'
+                    aria-label={`Open photo ${index + 1}`}
+                  >
+                    <Image
+                      src={item.image}
+                      alt={item.alt ?? `Pre-wedding photo ${index + 1}`}
+                      fill
+                      sizes='(max-width: 768px) 130vw, 48vw'
+                      className='object-cover object-center transition duration-700 group-hover:scale-[1.03]'
                     />
-                    <div className='absolute inset-0 bg-[radial-gradient(circle_at_24%_18%,rgb(200_180_139/0.16),transparent_38%)]' />
-                    <div className='absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,transparent_0%,rgb(0_0_0/0.6)_100%)] px-4 pb-3 pt-5 text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[rgb(223_230_227/0.92)]'>
-                      {item.label}
-                    </div>
-                    <p className='pointer-events-none absolute left-4 top-4 text-[0.62rem] uppercase tracking-[0.14em] text-[rgb(223_230_227/0.86)]'>
-                      {item.title}
-                    </p>
-                  </div>
+                    <div className='absolute inset-0 bg-[radial-gradient(circle_at_24%_18%,rgb(200_180_139/0.14),transparent_44%)]' />
+                  </button>
                 </motion.article>
               )
             })}
+
+            <div
+              aria-hidden='true'
+              className='h-px w-[26vw] min-w-[260px] shrink-0'
+            />
           </motion.div>
 
           <motion.div
@@ -225,7 +428,93 @@ export default function GallerySection({
           </motion.div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {selectedItem ? (
+          <motion.div
+            key='gallery-preview'
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.24, ease: 'easeOut' }}
+            className='fixed inset-0 z-[80] flex items-center justify-center bg-[rgb(4_4_6/0.86)] px-3 py-4 backdrop-blur-md sm:px-8 sm:py-6'
+            role='dialog'
+            aria-modal='true'
+            aria-label='Gallery image preview'
+            onClick={() => setSelectedIndex(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.985 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 16, scale: 0.985 }}
+              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+              className='relative w-full max-w-[88rem]'
+              onClick={(event) => {
+                event.stopPropagation()
+              }}
+            >
+              <div className='relative mx-auto rounded-[1.1rem] border border-[rgb(223_230_227/0.24)] bg-[rgb(8_8_10/0.94)] p-2.5 shadow-[0_28px_95px_rgb(0_0_0/0.46)] sm:rounded-[1.5rem] sm:p-4'>
+                <div className='relative h-[74svh] w-full overflow-hidden rounded-[0.85rem] bg-[rgb(6_6_8)] sm:h-[80svh] sm:rounded-[1.1rem]'>
+                  <Image
+                    src={selectedItem.image}
+                    alt={
+                      selectedItem.alt ??
+                      `Pre-wedding photo ${selectedPhotoNumber}`
+                    }
+                    fill
+                    sizes='95vw'
+                    className='object-contain object-center'
+                    priority
+                  />
+                </div>
+              </div>
+
+              <button
+                type='button'
+                onClick={() => setSelectedIndex(null)}
+                className='absolute right-1 top-1 grid h-10 w-10 place-items-center rounded-full border border-[rgb(223_230_227/0.32)] bg-[rgb(12_12_14/0.88)] text-[rgb(223_230_227/0.95)] shadow-[0_12px_30px_rgb(0_0_0/0.35)] transition hover:bg-[rgb(24_24_28/0.94)] sm:right-3 sm:top-3'
+                aria-label='Close preview'
+              >
+                <X size={18} weight='bold' />
+              </button>
+
+              <button
+                type='button'
+                onClick={() => {
+                  setSelectedIndex((current) => {
+                    if (current === null) return 0
+                    return (
+                      (current - 1 + galleryItems.length) % galleryItems.length
+                    )
+                  })
+                }}
+                className='absolute left-1 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-[rgb(223_230_227/0.32)] bg-[rgb(12_12_14/0.88)] text-[rgb(223_230_227/0.95)] shadow-[0_12px_30px_rgb(0_0_0/0.35)] transition hover:bg-[rgb(24_24_28/0.94)] sm:left-3'
+                aria-label='Previous photo'
+              >
+                <CaretLeft size={20} weight='bold' />
+              </button>
+
+              <button
+                type='button'
+                onClick={() => {
+                  setSelectedIndex((current) => {
+                    if (current === null) return 0
+                    return (current + 1) % galleryItems.length
+                  })
+                }}
+                className='absolute right-1 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-[rgb(223_230_227/0.32)] bg-[rgb(12_12_14/0.88)] text-[rgb(223_230_227/0.95)] shadow-[0_12px_30px_rgb(0_0_0/0.35)] transition hover:bg-[rgb(24_24_28/0.94)] sm:right-3'
+                aria-label='Next photo'
+              >
+                <CaretRight size={20} weight='bold' />
+              </button>
+
+              <div className='pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full border border-[rgb(223_230_227/0.2)] bg-[rgb(8_8_10/0.82)] px-3 py-1 text-[0.62rem] font-medium uppercase tracking-[0.16em] text-[rgb(223_230_227/0.86)] sm:bottom-4 sm:text-xs'>
+                {selectedPhotoNumber} / {galleryItems.length}
+              </div>
+            </motion.div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </section>
   )
 }
-

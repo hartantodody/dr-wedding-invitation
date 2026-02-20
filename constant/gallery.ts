@@ -1,34 +1,33 @@
 export type GalleryItem = {
   id: string
-  label: string
-  title: string
   image: string
+  alt?: string
 }
 
 export const GALLERY_ITEMS: GalleryItem[] = [
-  { id: 'ubud-2024', label: 'Ubud, 2024', title: 'Morning Walk', image: '/gallery-1.jpg' },
   {
-    id: 'bali-2024',
-    label: 'Bali, 2024',
-    title: 'After Dinner Talk',
-    image: '/gallery-2.jpg'
+    id: 'gallery-1',
+    image: '/images/gallery/gallery-1.jpeg',
+    alt: 'Pre-wedding photo 1'
   },
   {
-    id: 'gianyar-2025',
-    label: 'Gianyar, 2025',
-    title: 'Family Blessing',
-    image: '/gallery-3.jpg'
+    id: 'gallery-2',
+    image: '/images/gallery/gallery-2.jpeg',
+    alt: 'Pre-wedding photo 2'
   },
   {
-    id: 'countdown-2026',
-    label: 'Save The Date',
-    title: 'Towards 11 April 2026',
-    image: '/gallery-4.jpg'
+    id: 'gallery-3',
+    image: '/images/gallery/gallery-3.jpeg',
+    alt: 'Pre-wedding photo 3'
   },
   {
-    id: 'the-day',
-    label: 'The Day',
-    title: 'Dody & Ritza',
-    image: '/gallery-5.jpg'
+    id: 'gallery-4',
+    image: '/images/gallery/gallery-4.jpeg',
+    alt: 'Pre-wedding photo 4'
+  },
+  {
+    id: 'gallery-5',
+    image: '/images/gallery/gallery-5.jpeg',
+    alt: 'Pre-wedding photo 5'
   }
 ]

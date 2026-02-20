@@ -1,6 +1,6 @@
 'use client'
 
-import { Disc, Pause, Play } from '@phosphor-icons/react'
+import { DiscIcon, PauseIcon, PlayIcon } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 import {
   forwardRef,
@@ -30,7 +30,10 @@ const DEFAULT_VOLUME = 0.16
 const BackgroundMusicPlayer = forwardRef<
   BackgroundMusicPlayerHandle,
   BackgroundMusicPlayerProps
->(function BackgroundMusicPlayer({ language }: BackgroundMusicPlayerProps, ref) {
+>(function BackgroundMusicPlayer(
+  { language }: BackgroundMusicPlayerProps,
+  ref
+) {
   const copy = COPY[language]
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
@@ -120,7 +123,7 @@ const BackgroundMusicPlayer = forwardRef<
         }}
       />
 
-      <div className='fixed bottom-4 right-4 z-50 flex items-end gap-2 sm:bottom-5 sm:right-5'>
+      <div className='fixed right-4 z-50 flex items-end gap-2 bottom-[calc(env(safe-area-inset-bottom)+4.8rem)] sm:bottom-5 sm:right-5'>
         {isLoading && hasIntent ? (
           <motion.div
             initial={{ opacity: 0, y: 8 }}
@@ -134,34 +137,36 @@ const BackgroundMusicPlayer = forwardRef<
         <button
           type='button'
           onClick={handleToggle}
-          className='group relative grid h-8 w-8 place-items-center rounded-full border border-[rgb(223_230_227/0.32)] bg-[rgb(10_10_12/0.9)] shadow-[0_10px_26px_rgb(0_0_0/0.38)] backdrop-blur-md transition hover:bg-[rgb(20_20_24/0.95)] sm:h-9 sm:w-9'
+          className='group relative inline-flex h-8 items-center gap-2 rounded-full border border-[rgb(223_230_227/0.32)] bg-[rgb(10_10_12/0.9)] px-2.5 shadow-[0_10px_26px_rgb(0_0_0/0.38)] backdrop-blur-md transition hover:bg-[rgb(20_20_24/0.95)] sm:h-9 sm:px-3'
           aria-label={isPlaying ? copy.music.pause : copy.music.play}
         >
+          {isPlaying ? (
+            <PauseIcon
+              weight='fill'
+              className='h-4 w-4 text-[rgb(218_193_138/0.98)]'
+            />
+          ) : (
+            <PlayIcon
+              weight='fill'
+              className='h-4 w-4 translate-x-[1px] text-[rgb(218_193_138/0.98)]'
+            />
+          )}
+
           <motion.div
             animate={isPlaying ? { rotate: 360 } : { rotate: 0 }}
-            transition={isPlaying ? DISC_SPIN : { duration: 0.35, ease: 'easeOut' }}
-            className='grid place-items-center text-[rgb(218_193_138/0.98)] [filter:drop-shadow(0_0_6px_rgb(200_180_139/0.45))]'
+            transition={
+              isPlaying ? DISC_SPIN : { duration: 0.35, ease: 'easeOut' }
+            }
+            className='text-[rgb(218_193_138/0.98)] [filter:drop-shadow(0_0_6px_rgb(200_180_139/0.45))]'
           >
-            <Disc size={24} weight='duotone' className='sm:h-[26px] sm:w-[26px]' />
+            <DiscIcon weight='duotone' className='h-6 w-6 sm:h-7 sm:w-7' />
           </motion.div>
 
-          <span className='pointer-events-none absolute inset-0 grid place-items-center'>
-            {isPlaying ? (
-              <Pause
-                size={9}
-                weight='fill'
-                className='text-[rgb(8_8_10/0.94)] sm:h-[10px] sm:w-[10px]'
-              />
-            ) : (
-              <Play
-                size={9}
-                weight='fill'
-                className='translate-x-[0.6px] text-[rgb(8_8_10/0.94)] sm:h-[10px] sm:w-[10px]'
-              />
-            )}
-          </span>
+          {/* <span className='pointer-events-none absolute inset-0 grid place-items-center'> */}
 
-          <span className='pointer-events-none absolute -bottom-4 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded-full bg-[rgb(8_8_10/0.9)] px-2 py-0.5 text-[0.52rem] uppercase tracking-[0.12em] text-[rgb(223_230_227/0.8)] group-hover:block sm:text-[0.56rem]'>
+          {/* </span> */}
+
+          <span className='pointer-events-none absolute -top-6 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded-full bg-[rgb(8_8_10/0.9)] px-2 py-0.5 text-[0.52rem] uppercase tracking-[0.12em] text-[rgb(223_230_227/0.8)] group-hover:block sm:text-[0.56rem]'>
             {isPlaying ? copy.music.pause : copy.music.play}
           </span>
         </button>

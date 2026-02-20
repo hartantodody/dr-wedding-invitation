@@ -13,12 +13,17 @@ import {
 import BackgroundMusicPlayer, {
   type BackgroundMusicPlayerHandle
 } from '@/components/common/BackgroundMusicPlayer'
-import { DEFAULT_RECIPIENT, INVITATION_EVENT } from '@/constant/invitation'
+import {
+  DEFAULT_RECIPIENT,
+  INVITATION_EVENT,
+  type ReceptionShiftId
+} from '@/constant/invitation'
 import InvitationContent from './InvitationContent'
 
 type SplashScreenProps = {
   recipientName?: string
   initialLanguage?: AppLanguage
+  receptionShiftIds?: ReceptionShiftId[]
 }
 
 const openTransition = {
@@ -28,7 +33,8 @@ const openTransition = {
 
 export default function SplashScreen({
   recipientName,
-  initialLanguage = DEFAULT_LANGUAGE
+  initialLanguage = DEFAULT_LANGUAGE,
+  receptionShiftIds
 }: SplashScreenProps) {
   const [language, setLanguage] = useState<AppLanguage>(initialLanguage)
   const [showSplash, setShowSplash] = useState(true)
@@ -97,7 +103,11 @@ export default function SplashScreen({
         transition={openTransition}
         className='relative min-h-[100svh]'
       >
-        <InvitationContent language={language} onLanguageChange={setLanguage} />
+        <InvitationContent
+          language={language}
+          onLanguageChange={setLanguage}
+          receptionShiftIds={receptionShiftIds}
+        />
       </motion.div>
 
       <AnimatePresence>
@@ -139,7 +149,7 @@ export default function SplashScreen({
               })}
             </div>
 
-            <section className='relative flex min-h-[100svh] items-center justify-center px-5 pb-20 pt-14 sm:px-8'>
+            <section className='relative flex min-h-[100svh] items-center justify-center px-5 pb-[calc(env(safe-area-inset-bottom)+7rem)] pt-14 sm:px-8 sm:pb-20'>
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -161,7 +171,7 @@ export default function SplashScreen({
                 <div className='mx-auto mt-5 w-[min(74vw,18.5rem)] sm:w-[min(60vw,22rem)]'>
                   <div className='relative aspect-[0.74] overflow-hidden rounded-t-[999px] rounded-b-[2rem] border border-[rgb(223_230_227/0.5)] bg-[rgb(9_9_10)] shadow-[0_20px_55px_rgb(0_0_0/0.38)]'>
                     <Image
-                      src='/splash-screen.jpeg'
+                      src='/images/splash-screen.jpeg'
                       alt='Dody and Ritza'
                       fill
                       priority

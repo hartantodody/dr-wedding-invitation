@@ -1,5 +1,6 @@
 import SplashScreen from '@/components/section/SplashScreen'
 import { DEFAULT_LANGUAGE, isAppLanguage, type AppLanguage } from '@/constant/i18n'
+import { parseReceptionShiftQueryParam } from '@/constant/invitation'
 
 type SearchParams = {
   [key: string]: string | string[] | undefined
@@ -32,6 +33,10 @@ function getLanguageFromParams(searchParams: SearchParams): AppLanguage {
   return value
 }
 
+function getReceptionShiftsFromParams(searchParams: SearchParams) {
+  return parseReceptionShiftQueryParam(searchParams.shift)
+}
+
 export default async function Page({
   searchParams
 }: {
@@ -40,11 +45,13 @@ export default async function Page({
   const params = await searchParams
   const recipientName = getRecipientFromParams(params)
   const initialLanguage = getLanguageFromParams(params)
+  const receptionShiftIds = getReceptionShiftsFromParams(params)
 
   return (
     <SplashScreen
       recipientName={recipientName}
       initialLanguage={initialLanguage}
+      receptionShiftIds={receptionShiftIds}
     />
   )
 }
