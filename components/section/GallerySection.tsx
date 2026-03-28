@@ -53,6 +53,8 @@ export default function GallerySection({
 
   const sectionRef = useRef<HTMLElement | null>(null)
   const trackRef = useRef<HTMLDivElement | null>(null)
+  const lockedMobileHeightRef = useRef<number | null>(null)
+  const lastMobileWidthRef = useRef<number | null>(null)
 
   const [activeSlide, setActiveSlide] = useState(1)
   const [maxTranslate, setMaxTranslate] = useState(0)
@@ -140,7 +142,27 @@ export default function GallerySection({
 
     const updateMeasurements = () => {
       const viewportWidth = window.innerWidth || 1
-      const viewportHeight = window.innerHeight || 1
+      const rawViewportHeight = window.innerHeight || 1
+      const isMobileViewport = viewportWidth < 768
+
+      let viewportHeight = rawViewportHeight
+
+      if (isMobileViewport) {
+        const widthChanged =
+          lastMobileWidthRef.current === null ||
+          Math.abs(lastMobileWidthRef.current - viewportWidth) > 12
+
+        if (widthChanged || lockedMobileHeightRef.current === null) {
+          lastMobileWidthRef.current = viewportWidth
+          lockedMobileHeightRef.current = rawViewportHeight
+        }
+
+        viewportHeight = lockedMobileHeightRef.current ?? rawViewportHeight
+      } else {
+        lockedMobileHeightRef.current = null
+        lastMobileWidthRef.current = null
+      }
+
       const nextTranslate = Math.max(0, track.scrollWidth - viewportWidth)
       const endPauseSpace = Math.max(220, Math.round(viewportHeight * 0.34))
       const nextHeight = Math.max(
@@ -166,14 +188,26 @@ export default function GallerySection({
       )
     }
 
+    let rafId = 0
+    const scheduleUpdateMeasurements = () => {
+      if (rafId) return
+      rafId = window.requestAnimationFrame(() => {
+        rafId = 0
+        updateMeasurements()
+      })
+    }
+
     updateMeasurements()
 
     const resizeObserver = new ResizeObserver(updateMeasurements)
     resizeObserver.observe(track)
-    window.addEventListener('resize', updateMeasurements)
+    window.addEventListener('resize', scheduleUpdateMeasurements)
 
     return () => {
-      window.removeEventListener('resize', updateMeasurements)
+      window.removeEventListener('resize', scheduleUpdateMeasurements)
+      if (rafId) {
+        window.cancelAnimationFrame(rafId)
+      }
       resizeObserver.disconnect()
     }
   }, [galleryItems.length, imageMetaMap])
@@ -261,7 +295,7 @@ export default function GallerySection({
       />
       <div className='pointer-events-none absolute inset-0 opacity-[0.07] [background-image:radial-gradient(rgb(223_230_227/0.18)_0.5px,transparent_0.5px)] [background-size:4px_4px]' />
 
-      <div className='sticky top-0 h-[100svh] overflow-hidden'>
+      <div className='sticky top-0 h-[100lvh] overflow-hidden md:h-[100svh]'>
         <div className='relative h-full'>
           <motion.div
             initial={{ opacity: 0, y: 24 }}
