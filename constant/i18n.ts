@@ -17,6 +17,7 @@ type AppCopy = {
     to: string
     openButton: string
     languageLabel: string
+    invalidLinkHint: string
   }
   hero: {
     title: string
@@ -81,12 +82,19 @@ type AppCopy = {
     title: string
     subtitle: string
     nameLabel: string
+    nameMinHint: string
     attendanceLabel: string
     attendancePresent: string
     attendanceAbsent: string
     wishesLabel: string
+    wishesMinHint: string
     wishesPlaceholder: string
+    profanityError: string
+    fetchError: string
+    loadingLabel: string
     submitButton: string
+    submitButtonLoading: string
+    submitError: string
     submitSuccess: string
     messagesTitle: string
     messagesEmpty: string
@@ -123,7 +131,9 @@ export const COPY: Record<AppLanguage, AppCopy> = {
     splash: {
       to: 'Kepada Yth.',
       openButton: 'Buka Undangan',
-      languageLabel: 'Bahasa'
+      languageLabel: 'Bahasa',
+      invalidLinkHint:
+        'Link undangan tidak valid. Gunakan link resmi dengan parameter nama tamu dan shift.'
     },
     hero: {
       title: 'The Wedding Of',
@@ -193,12 +203,19 @@ export const COPY: Record<AppLanguage, AppCopy> = {
       subtitle:
         'Konfirmasi kehadiran dan tinggalkan pesan manis untuk kami di hari bahagia ini.',
       nameLabel: 'Nama',
+      nameMinHint: 'Minimal 2 karakter.',
       attendanceLabel: 'Kehadiran',
       attendancePresent: 'Hadir',
       attendanceAbsent: 'Berhalangan',
       wishesLabel: 'Ucapan',
+      wishesMinHint: 'Minimal 5 karakter.',
       wishesPlaceholder: 'Tulis ucapan dan doa terbaik untuk kami...',
+      profanityError: 'Mohon gunakan bahasa yang sopan tanpa kata kasar.',
+      fetchError: 'Gagal memuat pesan tamu. Coba refresh halaman.',
+      loadingLabel: 'Memuat pesan tamu...',
       submitButton: 'Kirim RSVP',
+      submitButtonLoading: 'Mengirim...',
+      submitError: 'Gagal mengirim RSVP. Coba lagi sebentar.',
       submitSuccess: 'Terima kasih, pesanmu sudah masuk.',
       messagesTitle: 'Pesan Tamu',
       messagesEmpty:
@@ -220,8 +237,8 @@ export const COPY: Record<AppLanguage, AppCopy> = {
       hide: 'Sembunyi'
     },
     footer: {
-      title: 'Created by Dody & Ritza',
-      subtitle: 'Untuk merayakan kisah cinta kami.'
+      title: 'Designed and coded by the groom',
+      subtitle: 'Copywriting and quality assurance by the bride.'
     },
     music: {
       play: 'Putar Musik',
@@ -240,7 +257,9 @@ export const COPY: Record<AppLanguage, AppCopy> = {
     splash: {
       to: 'Dear',
       openButton: 'Open Invitation',
-      languageLabel: 'Language'
+      languageLabel: 'Language',
+      invalidLinkHint:
+        'Invalid invitation link. Please use the official link with guest name and shift parameters.'
     },
     hero: {
       title: 'The Wedding Of',
@@ -312,12 +331,19 @@ export const COPY: Record<AppLanguage, AppCopy> = {
       subtitle:
         'Please confirm your attendance and leave your warm wishes for our day.',
       nameLabel: 'Name',
+      nameMinHint: 'Minimum 2 characters.',
       attendanceLabel: 'Attendance',
       attendancePresent: 'Attending',
       attendanceAbsent: 'Unable to Attend',
       wishesLabel: 'Wishes',
+      wishesMinHint: 'Minimum 5 characters.',
       wishesPlaceholder: 'Write your wishes for us...',
+      profanityError: 'Please use respectful language without profanity.',
+      fetchError: 'Failed to load guest messages. Please refresh the page.',
+      loadingLabel: 'Loading guest messages...',
       submitButton: 'Send RSVP',
+      submitButtonLoading: 'Sending...',
+      submitError: 'Failed to send RSVP. Please try again shortly.',
       submitSuccess: 'Thank you, your message has been sent.',
       messagesTitle: 'Guest Messages',
       messagesEmpty: 'No messages yet. Be the first to send your wishes.'
@@ -338,8 +364,8 @@ export const COPY: Record<AppLanguage, AppCopy> = {
       hide: 'Hide'
     },
     footer: {
-      title: 'Created by Dody & Ritza',
-      subtitle: 'For celebrating our wedding story.'
+      title: 'Designed and coded by the groom',
+      subtitle: 'Copywriting and quality assurance by the bride.'
     },
     music: {
       play: 'Play Music',

@@ -54,7 +54,7 @@ export default function GallerySection({
   const sectionRef = useRef<HTMLElement | null>(null)
   const trackRef = useRef<HTMLDivElement | null>(null)
 
-  const [progress, setProgress] = useState(0)
+  const [activeSlide, setActiveSlide] = useState(1)
   const [maxTranslate, setMaxTranslate] = useState(0)
   const [sectionHeightPx, setSectionHeightPx] = useState(2800)
   const [viewportSize, setViewportSize] = useState({ width: 1440, height: 900 })
@@ -69,21 +69,26 @@ export default function GallerySection({
   })
 
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 86,
-    damping: 24,
-    mass: 0.42
+    stiffness: 72,
+    damping: 34,
+    mass: 0.62
   })
 
   const x = useTransform(
     smoothProgress,
     (value) => -maxTranslate * clamp(value, 0, 1)
   )
+  const progressScaleX = useTransform(smoothProgress, (value) =>
+    clamp(value, 0, 1)
+  )
 
   useMotionValueEvent(smoothProgress, 'change', (value) => {
-    setProgress((previous) => {
-      const next = clamp(value, 0, 1)
-      return Math.abs(previous - next) > 0.001 ? next : previous
-    })
+    const nextSlide = Math.min(
+      galleryItems.length,
+      Math.floor(clamp(value, 0, 1) * galleryItems.length) + 1
+    )
+
+    setActiveSlide((previous) => (previous === nextSlide ? previous : nextSlide))
   })
 
   useEffect(() => {
@@ -223,11 +228,6 @@ export default function GallerySection({
     selectedIndex === null ? null : galleryItems[selectedIndex]
   const selectedPhotoNumber = selectedIndex === null ? 1 : selectedIndex + 1
 
-  const activeSlide = Math.min(
-    galleryItems.length,
-    Math.floor(progress * galleryItems.length) + 1
-  )
-
   return (
     <section
       id='gallery'
@@ -366,7 +366,8 @@ export default function GallerySection({
                 cardWidthPx = clamp(computedWidthPx, minWidthPx, maxWidthPx)
               }
 
-              const offsetClass = offsetVariants[index % offsetVariants.length]
+              const offsetClass =
+                isMobileViewport ? '' : offsetVariants[index % offsetVariants.length]
 
               return (
                 <motion.article
@@ -417,9 +418,9 @@ export default function GallerySection({
             className='absolute bottom-6 left-5 right-5 z-20 sm:left-8 sm:right-8'
           >
             <div className='h-[2px] w-full overflow-hidden rounded-full bg-[rgb(223_230_227/0.24)]'>
-              <div
+              <motion.div
                 className='h-full rounded-full bg-[var(--color-accent-soft)]'
-                style={{ width: `${progress * 100}%` }}
+                style={{ scaleX: progressScaleX, transformOrigin: '0% 50%' }}
               />
             </div>
             <p className='mt-2 text-[0.65rem] uppercase tracking-[0.2em] text-[rgb(223_230_227/0.78)]'>

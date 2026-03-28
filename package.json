@@ -2,6 +2,7 @@
   "name": "dr-wedding-invitation",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "bun@1.2.4",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -12,17 +13,19 @@
     "@phosphor-icons/react": "^2.1.10",
     "framer-motion": "^12.34.1",
     "next": "^16.1.6",
+    "pg": "^8.20.0",
     "react": "19.2.0",
     "react-dom": "19.2.0"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
-    "eslint-config-next": "^16.1.6"
+    "eslint-config-next": "^16.1.6",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }

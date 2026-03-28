@@ -51,7 +51,11 @@ export default function IntroductionSection({
   const brideOpacity = useTransform(scrollYProgress, [0.9, 0.97, 1], [0, 1, 1])
   const brideY = useTransform(scrollYProgress, [0.9, 1], [40, 0])
 
-  const skipOpacity = useTransform(scrollYProgress, [0, 0.06, 0.52, 0.6], [0, 1, 1, 0])
+  const skipOpacity = useTransform(
+    scrollYProgress,
+    [0, 0.06, 0.52, 0.6],
+    [0, 1, 1, 0]
+  )
 
   const handleSkipToOpening = () => {
     const section = sectionRef.current
@@ -75,7 +79,7 @@ export default function IntroductionSection({
           type='button'
           onClick={handleSkipToOpening}
           style={{ opacity: skipOpacity }}
-          className='absolute right-5 top-5 z-30 rounded-full border border-[rgb(223_230_227/0.28)] bg-[rgb(12_12_14/0.6)] px-4 py-2 text-xs uppercase tracking-[0.14em] text-[rgb(223_230_227/0.88)] transition hover:bg-[rgb(24_24_28/0.82)] sm:right-8 sm:top-8'
+          className='absolute bottom-10 right-1/2 translate-x-1/2 z-30 rounded-full border border-[rgb(223_230_227/0.28)] bg-[rgb(12_12_14/0.6)] px-4 py-2 text-xs uppercase tracking-[0.14em] text-[rgb(223_230_227/0.88)] transition hover:bg-[rgb(24_24_28/0.82)] sm:bottom-8'
         >
           {copy.introduction.skipLabel}
         </motion.button>
@@ -151,11 +155,7 @@ export default function IntroductionSection({
                 {copy.introduction.groomLabel}
               </p>
               <h3
-                className='mt-1 text-3xl text-[var(--color-neutral-strong)] sm:text-4xl'
-                style={{
-                  fontFamily:
-                    'var(--font-wedding-heading), var(--font-heading), serif'
-                }}
+                className='mt-1 text-3xl font-semibold text-[var(--color-neutral-strong)] sm:text-4xl'
               >
                 {INVITATION_EVENT.groomFullName}
               </h3>

@@ -49,17 +49,27 @@ export const INVITATION_EVENT = {
     {
       id: 'gift-groom',
       bankName: 'BCA',
-      accountNumber: '1234567890',
+      bankLogoPath: '/images/bank/bca-logo.svg',
+      accountNumber: '7680505335',
       accountHolderName: 'Dody Hartanto',
       owner: 'groom'
     },
     {
       id: 'gift-bride',
-      bankName: 'Mandiri',
-      accountNumber: '0987654321',
+      bankName: 'BNI',
+      bankLogoPath: '/images/bank/bni-logo.svg',
+      accountNumber: '1208237018',
       accountHolderName: 'Ritzalina Nur Azizah',
       owner: 'bride'
     }
+    // {
+    //   id: 'gift-bride',
+    //   bankName: 'Permata',
+    //   bankLogoPath: '/images/bank/mandiri-logo.png',
+    //   accountNumber: '9952874346',
+    //   accountHolderName: 'Ritzalina Nur Azizah',
+    //   owner: 'bride'
+    // }
   ] as const
 } as const
 

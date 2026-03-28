@@ -15,12 +15,14 @@ type InvitationContentProps = {
   language: AppLanguage
   onLanguageChange: (language: AppLanguage) => void
   receptionShiftIds?: ReceptionShiftId[]
+  recipientName?: string
 }
 
 export default function InvitationContent({
   language,
   onLanguageChange,
-  receptionShiftIds
+  receptionShiftIds,
+  recipientName
 }: InvitationContentProps) {
   const copy = COPY[language]
 
@@ -54,7 +56,7 @@ export default function InvitationContent({
       />
       <GallerySection language={language} />
       <WeddingGiftSection language={language} />
-      <RsvpWishesSection language={language} />
+      <RsvpWishesSection language={language} initialGuestName={recipientName} />
       <InvitationFooter language={language} />
     </>
   )

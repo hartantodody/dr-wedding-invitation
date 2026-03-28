@@ -1,12 +1,18 @@
 'use client'
 
-import { CheckCircle, HeartStraight, PaperPlaneTilt } from '@phosphor-icons/react'
+import {
+  CheckCircle,
+  PaperPlaneTilt,
+  XCircle
+} from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 import { useEffect, useMemo, useRef, useState, type FormEventHandler } from 'react'
 import { COPY, type AppLanguage } from '@/constant/i18n'
+import { containsProfanity } from '@/constant/profanity'
 
 type RsvpWishesSectionProps = {
   language: AppLanguage
+  initialGuestName?: string
 }
 
 type AttendanceStatus = 'attending' | 'not-attending'
@@ -25,7 +31,10 @@ type FormState = {
   message: string
 }
 
-const LOCAL_STORAGE_KEY = 'dr-wedding-rsvp-wishes-v1'
+const MAX_NAME_CHARS = 60
+const MIN_NAME_CHARS = 2
+const MAX_WISH_CHARS = 320
+const MIN_WISH_CHARS = 5
 
 const revealTransition = {
   duration: 0.9,
@@ -55,37 +64,74 @@ function normalizeWishEntry(raw: unknown): WishEntry | null {
   return { id, name, attendance, message, createdAt }
 }
 
-export default function RsvpWishesSection({ language }: RsvpWishesSectionProps) {
+export default function RsvpWishesSection({
+  language,
+  initialGuestName
+}: RsvpWishesSectionProps) {
   const copy = COPY[language]
   const successTimerRef = useRef<number | null>(null)
+  const normalizedInitialGuestName = useMemo(
+    () => initialGuestName?.trim().slice(0, MAX_NAME_CHARS) ?? '',
+    [initialGuestName]
+  )
 
-  const [form, setForm] = useState<FormState>(initialFormState)
+  const [form, setForm] = useState<FormState>(() => ({
+    ...initialFormState,
+    name: normalizedInitialGuestName
+  }))
   const [entries, setEntries] = useState<WishEntry[]>([])
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isLoadingEntries, setIsLoadingEntries] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   useEffect(() => {
-    const frameId = window.requestAnimationFrame(() => {
+    const controller = new AbortController()
+
+    const loadEntries = async () => {
+      setIsLoadingEntries(true)
+      setLoadError(null)
+
       try {
-        const rawEntries = window.localStorage.getItem(LOCAL_STORAGE_KEY)
-        if (!rawEntries) return
+        const response = await fetch('/api/rsvp-wishes', {
+          method: 'GET',
+          cache: 'no-store',
+          signal: controller.signal
+        })
 
-        const parsed = JSON.parse(rawEntries) as unknown
-        if (!Array.isArray(parsed)) return
+        if (!response.ok) {
+          throw new Error(`GET /api/rsvp-wishes failed with ${response.status}`)
+        }
 
-        const validEntries = parsed
-          .map(normalizeWishEntry)
-          .filter((entry): entry is WishEntry => entry !== null)
+        const payload = (await response.json()) as {
+          entries?: unknown[]
+        }
+
+        const validEntries = Array.isArray(payload.entries)
+          ? payload.entries
+              .map(normalizeWishEntry)
+              .filter((entry): entry is WishEntry => entry !== null)
+          : []
 
         setEntries(validEntries)
-      } catch {
-        // no-op
+      } catch (error) {
+        if (controller.signal.aborted) return
+        console.error('Failed to fetch RSVP entries.', error)
+        setLoadError(copy.rsvp.fetchError)
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoadingEntries(false)
+        }
       }
-    })
+    }
+
+    loadEntries()
 
     return () => {
-      window.cancelAnimationFrame(frameId)
+      controller.abort()
     }
-  }, [])
+  }, [copy.rsvp.fetchError])
 
   useEffect(() => {
     return () => {
@@ -107,43 +153,94 @@ export default function RsvpWishesSection({ language }: RsvpWishesSectionProps) 
     field: keyof FormState,
     value: FormState[keyof FormState]
   ) => {
+    const normalizedValue =
+      typeof value === 'string'
+        ? field === 'name'
+          ? value.slice(0, MAX_NAME_CHARS)
+          : field === 'message'
+            ? value.slice(0, MAX_WISH_CHARS)
+            : value
+        : value
+
     setForm((previous) => ({
       ...previous,
-      [field]: value
+      [field]: normalizedValue
     }))
   }
 
-  const handleSubmitForm: FormEventHandler<HTMLFormElement> = (event) => {
+  const trimmedName = form.name.trim()
+  const trimmedMessage = form.message.trim()
+  const isNameValid =
+    trimmedName.length >= MIN_NAME_CHARS && trimmedName.length <= MAX_NAME_CHARS
+  const isMessageValid =
+    trimmedMessage.length >= MIN_WISH_CHARS &&
+    trimmedMessage.length <= MAX_WISH_CHARS
+  const nameHasProfanity = containsProfanity(trimmedName)
+  const messageHasProfanity = containsProfanity(trimmedMessage)
+  const canSubmit =
+    isNameValid &&
+    isMessageValid &&
+    !nameHasProfanity &&
+    !messageHasProfanity &&
+    !isSubmitting
+
+  const handleSubmitForm: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault()
 
-    const name = form.name.trim().slice(0, 60)
-    const message = form.message.trim().slice(0, 320)
+    const name = trimmedName.slice(0, MAX_NAME_CHARS)
+    const message = trimmedMessage.slice(0, MAX_WISH_CHARS)
 
-    if (!name || !message) return
+    if (!canSubmit) return
 
-    const nextEntry: WishEntry = {
-      id: `${Date.now()}-${Math.round(Math.random() * 100000)}`,
-      name,
-      attendance: form.attendance,
-      message,
-      createdAt: new Date().toISOString()
-    }
-
-    const nextEntries = [nextEntry, ...entries]
-    setEntries(nextEntries)
+    setIsSubmitting(true)
+    setSubmitError(null)
 
     try {
-      window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(nextEntries))
-    } catch {
-      // no-op
+      const response = await fetch('/api/rsvp-wishes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name,
+          attendance: form.attendance,
+          message
+        })
+      })
+
+      const payload = (await response.json().catch(() => null)) as
+        | {
+            entry?: unknown
+            error?: unknown
+          }
+        | null
+
+      if (!response.ok) {
+        const messageFromApi =
+          payload && typeof payload.error === 'string' ? payload.error : null
+        setSubmitError(messageFromApi ?? copy.rsvp.submitError)
+        return
+      }
+
+      const entry = normalizeWishEntry(payload?.entry)
+      if (!entry) {
+        setSubmitError(copy.rsvp.submitError)
+        return
+      }
+
+      setEntries((previous) => [entry, ...previous])
+      setForm((previous) => ({
+        ...previous,
+        message: ''
+      }))
+      setIsSubmitted(true)
+    } catch (error) {
+      console.error('Failed to submit RSVP.', error)
+      setSubmitError(copy.rsvp.submitError)
+      return
+    } finally {
+      setIsSubmitting(false)
     }
-
-    setForm((previous) => ({
-      ...previous,
-      message: ''
-    }))
-
-    setIsSubmitted(true)
 
     if (successTimerRef.current) {
       window.clearTimeout(successTimerRef.current)
@@ -191,12 +288,17 @@ export default function RsvpWishesSection({ language }: RsvpWishesSectionProps) 
           >
             <form className='space-y-5' onSubmit={handleSubmitForm}>
               <div>
-                <label
-                  htmlFor='rsvp-name'
-                  className='text-xs uppercase tracking-[0.18em] text-[rgb(182_186_192/0.92)]'
-                >
-                  {copy.rsvp.nameLabel}
-                </label>
+                <div className='flex items-end justify-between gap-3'>
+                  <label
+                    htmlFor='rsvp-name'
+                    className='text-xs uppercase tracking-[0.18em] text-[rgb(182_186_192/0.92)]'
+                  >
+                    {copy.rsvp.nameLabel}
+                  </label>
+                  <span className='text-[0.65rem] tracking-[0.08em] text-[rgb(182_186_192/0.84)]'>
+                    {form.name.length}/{MAX_NAME_CHARS}
+                  </span>
+                </div>
                 <input
                   id='rsvp-name'
                   value={form.name}
@@ -204,10 +306,22 @@ export default function RsvpWishesSection({ language }: RsvpWishesSectionProps) 
                     handleChangeFormValue('name', event.target.value)
                   }
                   required
-                  maxLength={60}
+                  minLength={MIN_NAME_CHARS}
+                  maxLength={MAX_NAME_CHARS}
                   className='mt-2 w-full rounded-xl border border-[rgb(223_230_227/0.22)] bg-[rgb(223_230_227/0.08)] px-4 py-3 text-sm text-[var(--color-neutral-strong)] outline-none transition placeholder:text-[rgb(182_186_192/0.72)] focus:border-[var(--color-accent-soft)] focus:ring-2 focus:ring-[rgb(211_188_145/0.25)]'
                   placeholder={copy.rsvp.nameLabel}
                 />
+                <p
+                  className={`mt-1 text-[0.65rem] ${
+                    nameHasProfanity
+                      ? 'text-[rgb(252_165_165/0.92)]'
+                      : 'text-[rgb(182_186_192/0.78)]'
+                  }`}
+                >
+                  {nameHasProfanity
+                    ? copy.rsvp.profanityError
+                    : copy.rsvp.nameMinHint}
+                </p>
               </div>
 
               <div>
@@ -215,7 +329,13 @@ export default function RsvpWishesSection({ language }: RsvpWishesSectionProps) 
                   {copy.rsvp.attendanceLabel}
                 </p>
                 <div className='mt-2 flex flex-col gap-2 sm:flex-row'>
-                  <label className='inline-flex items-center gap-2 rounded-full border border-[rgb(223_230_227/0.22)] bg-[rgb(223_230_227/0.08)] px-4 py-2 text-sm text-[rgb(223_230_227/0.9)]'>
+                  <label
+                    className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition ${
+                      form.attendance === 'attending'
+                        ? 'border-[var(--color-accent-soft)] bg-[rgb(211_188_145/0.34)] text-[var(--color-neutral-strong)] shadow-[0_0_0_1px_rgb(211_188_145/0.32)]'
+                        : 'border-[rgb(223_230_227/0.22)] bg-[rgb(223_230_227/0.08)] text-[rgb(223_230_227/0.9)]'
+                    }`}
+                  >
                     <input
                       type='radio'
                       name='attendance'
@@ -228,7 +348,13 @@ export default function RsvpWishesSection({ language }: RsvpWishesSectionProps) 
                     />
                     {copy.rsvp.attendancePresent}
                   </label>
-                  <label className='inline-flex items-center gap-2 rounded-full border border-[rgb(223_230_227/0.22)] bg-[rgb(223_230_227/0.08)] px-4 py-2 text-sm text-[rgb(223_230_227/0.9)]'>
+                  <label
+                    className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition ${
+                      form.attendance === 'not-attending'
+                        ? 'border-[rgb(184_190_198/0.55)] bg-[rgb(148_163_184/0.26)] text-[rgb(241_245_249/0.96)] shadow-[0_0_0_1px_rgb(148_163_184/0.28)]'
+                        : 'border-[rgb(223_230_227/0.22)] bg-[rgb(223_230_227/0.08)] text-[rgb(223_230_227/0.9)]'
+                    }`}
+                  >
                     <input
                       type='radio'
                       name='attendance'
@@ -245,12 +371,17 @@ export default function RsvpWishesSection({ language }: RsvpWishesSectionProps) 
               </div>
 
               <div>
-                <label
-                  htmlFor='rsvp-message'
-                  className='text-xs uppercase tracking-[0.18em] text-[rgb(182_186_192/0.92)]'
-                >
-                  {copy.rsvp.wishesLabel}
-                </label>
+                <div className='flex items-end justify-between gap-3'>
+                  <label
+                    htmlFor='rsvp-message'
+                    className='text-xs uppercase tracking-[0.18em] text-[rgb(182_186_192/0.92)]'
+                  >
+                    {copy.rsvp.wishesLabel}
+                  </label>
+                  <span className='text-[0.65rem] tracking-[0.08em] text-[rgb(182_186_192/0.84)]'>
+                    {form.message.length}/{MAX_WISH_CHARS}
+                  </span>
+                </div>
                 <textarea
                   id='rsvp-message'
                   value={form.message}
@@ -258,20 +389,35 @@ export default function RsvpWishesSection({ language }: RsvpWishesSectionProps) 
                     handleChangeFormValue('message', event.target.value)
                   }
                   required
-                  maxLength={320}
+                  minLength={MIN_WISH_CHARS}
+                  maxLength={MAX_WISH_CHARS}
                   rows={5}
                   className='mt-2 w-full resize-none rounded-xl border border-[rgb(223_230_227/0.22)] bg-[rgb(223_230_227/0.08)] px-4 py-3 text-sm text-[var(--color-neutral-strong)] outline-none transition placeholder:text-[rgb(182_186_192/0.72)] focus:border-[var(--color-accent-soft)] focus:ring-2 focus:ring-[rgb(211_188_145/0.25)]'
                   placeholder={copy.rsvp.wishesPlaceholder}
                 />
+                <p
+                  className={`mt-1 text-[0.65rem] ${
+                    messageHasProfanity
+                      ? 'text-[rgb(252_165_165/0.92)]'
+                      : 'text-[rgb(182_186_192/0.78)]'
+                  }`}
+                >
+                  {messageHasProfanity
+                    ? copy.rsvp.profanityError
+                    : copy.rsvp.wishesMinHint}
+                </p>
               </div>
 
               <div className='flex items-center gap-3'>
                 <button
                   type='submit'
-                  className='inline-flex items-center gap-2 rounded-full border border-[rgb(223_230_227/0.22)] bg-[rgb(211_188_145/0.22)] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.13em] text-[var(--color-neutral-strong)] transition hover:bg-[rgb(211_188_145/0.32)]'
+                  disabled={!canSubmit}
+                  className='inline-flex items-center gap-2 rounded-full border border-[rgb(223_230_227/0.22)] bg-[rgb(211_188_145/0.22)] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.13em] text-[var(--color-neutral-strong)] transition hover:bg-[rgb(211_188_145/0.32)] disabled:cursor-not-allowed disabled:border-[rgb(182_186_192/0.26)] disabled:bg-[rgb(182_186_192/0.16)] disabled:text-[rgb(182_186_192/0.78)] disabled:hover:bg-[rgb(182_186_192/0.16)]'
                 >
                   <PaperPlaneTilt size={16} weight='bold' />
-                  {copy.rsvp.submitButton}
+                  {isSubmitting
+                    ? copy.rsvp.submitButtonLoading
+                    : copy.rsvp.submitButton}
                 </button>
 
                 {isSubmitted ? (
@@ -281,6 +427,12 @@ export default function RsvpWishesSection({ language }: RsvpWishesSectionProps) 
                   </p>
                 ) : null}
               </div>
+
+              {submitError ? (
+                <p className='text-[0.72rem] text-[rgb(252_165_165/0.92)]'>
+                  {submitError}
+                </p>
+              ) : null}
             </form>
           </motion.article>
 
@@ -301,7 +453,15 @@ export default function RsvpWishesSection({ language }: RsvpWishesSectionProps) 
             </div>
 
             <div className='mt-4 max-h-[27rem] space-y-3 overflow-y-auto pr-1'>
-              {entries.length === 0 ? (
+              {isLoadingEntries ? (
+                <p className='rounded-xl border border-dashed border-[rgb(223_230_227/0.22)] bg-[rgb(223_230_227/0.06)] px-4 py-4 text-sm leading-relaxed text-[rgb(223_230_227/0.82)]'>
+                  {copy.rsvp.loadingLabel}
+                </p>
+              ) : loadError ? (
+                <p className='rounded-xl border border-dashed border-[rgb(252_165_165/0.45)] bg-[rgb(252_165_165/0.08)] px-4 py-4 text-sm leading-relaxed text-[rgb(252_165_165/0.92)]'>
+                  {loadError}
+                </p>
+              ) : entries.length === 0 ? (
                 <p className='rounded-xl border border-dashed border-[rgb(223_230_227/0.22)] bg-[rgb(223_230_227/0.06)] px-4 py-4 text-sm leading-relaxed text-[rgb(223_230_227/0.82)]'>
                   {copy.rsvp.messagesEmpty}
                 </p>
@@ -312,9 +472,27 @@ export default function RsvpWishesSection({ language }: RsvpWishesSectionProps) 
                     className='rounded-xl border border-[rgb(223_230_227/0.16)] bg-[rgb(223_230_227/0.06)] px-4 py-3'
                   >
                     <div className='flex items-center justify-between gap-3'>
-                      <p className='text-sm font-semibold text-[var(--color-neutral-strong)]'>
-                        {entry.name}
-                      </p>
+                      <div className='flex items-center gap-2'>
+                        <p className='text-sm font-semibold text-[var(--color-neutral-strong)]'>
+                          {entry.name}
+                        </p>
+                        <span
+                          className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.58rem] uppercase tracking-[0.12em] ${
+                            entry.attendance === 'attending'
+                              ? 'border border-[rgb(211_188_145/0.45)] bg-[rgb(211_188_145/0.18)] text-[var(--color-accent-soft)]'
+                              : 'border border-[rgb(148_163_184/0.38)] bg-[rgb(148_163_184/0.14)] text-[rgb(203_213_225/0.86)]'
+                          }`}
+                        >
+                          {entry.attendance === 'attending' ? (
+                            <CheckCircle size={11} weight='fill' />
+                          ) : (
+                            <XCircle size={11} weight='fill' />
+                          )}
+                          {entry.attendance === 'attending'
+                            ? copy.rsvp.attendancePresent
+                            : copy.rsvp.attendanceAbsent}
+                        </span>
+                      </div>
                       <p className='text-[0.62rem] uppercase tracking-[0.14em] text-[rgb(182_186_192/0.86)]'>
                         {dateFormatter.format(new Date(entry.createdAt))}
                       </p>
@@ -322,13 +500,6 @@ export default function RsvpWishesSection({ language }: RsvpWishesSectionProps) 
 
                     <p className='mt-2 text-sm leading-relaxed text-[rgb(223_230_227/0.88)]'>
                       {entry.message}
-                    </p>
-
-                    <p className='mt-2 inline-flex items-center gap-1 text-[0.65rem] uppercase tracking-[0.14em] text-[var(--color-accent-soft)]'>
-                      <HeartStraight size={12} weight='fill' />
-                      {entry.attendance === 'attending'
-                        ? copy.rsvp.attendancePresent
-                        : copy.rsvp.attendanceAbsent}
                     </p>
                   </div>
                 ))

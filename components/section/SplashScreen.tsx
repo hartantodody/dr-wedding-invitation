@@ -43,6 +43,9 @@ export default function SplashScreen({
   const musicPlayerRef = useRef<BackgroundMusicPlayerHandle | null>(null)
 
   const copy = COPY[language]
+  const hasRecipientParam = Boolean(recipientName?.trim())
+  const hasShiftParam = Boolean(receptionShiftIds?.length)
+  const canOpenInvitation = hasRecipientParam && hasShiftParam
 
   useEffect(() => {
     return () => {
@@ -81,7 +84,7 @@ export default function SplashScreen({
   }
 
   const handleOpenInvitation = () => {
-    if (isOpening) return
+    if (isOpening || !canOpenInvitation) return
 
     resetScrollToTop()
     setIsOpening(true)
@@ -96,17 +99,18 @@ export default function SplashScreen({
   }
 
   return (
-    <main className='relative min-h-[100svh] overflow-x-clip bg-[var(--color-primary)]'>
+    <main className='relative min-h-[100svh] min-h-[100dvh] overflow-x-clip bg-[var(--color-primary)]'>
       <motion.div
         initial={false}
         animate={showSplash ? { opacity: 0, y: 28 } : { opacity: 1, y: 0 }}
         transition={openTransition}
-        className='relative min-h-[100svh]'
+        className='relative min-h-[100svh] min-h-[100dvh]'
       >
         <InvitationContent
           language={language}
           onLanguageChange={setLanguage}
           receptionShiftIds={receptionShiftIds}
+          recipientName={recipientName}
         />
       </motion.div>
 
@@ -122,10 +126,57 @@ export default function SplashScreen({
             transition={{ duration: 1.28, ease: [0.16, 1, 0.3, 1] }}
             className='fixed inset-0 z-30'
           >
-            <div className='absolute inset-0 bg-[radial-gradient(circle_at_50%_12%,rgb(200_180_139/0.2),transparent_34%),linear-gradient(165deg,#070709_0%,#0a0a0c_52%,#121315_100%)]' />
-            <div className='absolute inset-0 opacity-[0.08] [background-image:radial-gradient(rgb(223_230_227/0.18)_0.55px,transparent_0.55px)] [background-size:4px_4px]' />
+            <motion.div
+              className='absolute inset-0 bg-[radial-gradient(circle_at_50%_12%,rgb(200_180_139/0.2),transparent_34%),linear-gradient(165deg,#070709_0%,#0a0a0c_52%,#121315_100%)]'
+              animate={{
+                scale: [1, 1.04, 1],
+                opacity: [1, 0.9, 1]
+              }}
+              transition={{
+                duration: 9,
+                ease: 'easeInOut',
+                repeat: Number.POSITIVE_INFINITY
+              }}
+            />
+            <motion.div
+              aria-hidden='true'
+              className='pointer-events-none absolute -left-[14%] top-[8%] h-[34svh] w-[34svh] rounded-full bg-[radial-gradient(circle,rgb(211_188_145/0.28)_0%,transparent_70%)] blur-3xl'
+              animate={{
+                x: [0, 36, -14, 0],
+                y: [0, -26, 14, 0],
+                opacity: [0.34, 0.58, 0.4, 0.34]
+              }}
+              transition={{
+                duration: 12,
+                ease: 'easeInOut',
+                repeat: Number.POSITIVE_INFINITY
+              }}
+            />
+            <motion.div
+              aria-hidden='true'
+              className='pointer-events-none absolute -right-[12%] bottom-[6%] h-[36svh] w-[36svh] rounded-full bg-[radial-gradient(circle,rgb(223_230_227/0.22)_0%,transparent_72%)] blur-3xl'
+              animate={{
+                x: [0, -32, 16, 0],
+                y: [0, -20, 12, 0],
+                opacity: [0.26, 0.44, 0.3, 0.26]
+              }}
+              transition={{
+                duration: 14,
+                ease: 'easeInOut',
+                repeat: Number.POSITIVE_INFINITY
+              }}
+            />
+            <motion.div
+              className='absolute inset-0 opacity-[0.08] [background-image:radial-gradient(rgb(223_230_227/0.18)_0.55px,transparent_0.55px)] [background-size:4px_4px]'
+              animate={{ opacity: [0.07, 0.11, 0.07] }}
+              transition={{
+                duration: 5,
+                ease: 'easeInOut',
+                repeat: Number.POSITIVE_INFINITY
+              }}
+            />
 
-            <div className='absolute right-4 top-4 z-30 flex items-center gap-2 rounded-full border border-[rgb(223_230_227/0.42)] bg-[rgb(12_12_14/0.62)] px-2 py-1 sm:right-6 sm:top-6'>
+            <div className='absolute right-4 top-[max(env(safe-area-inset-top),1rem)] z-30 flex items-center gap-2 rounded-full border border-[rgb(223_230_227/0.42)] bg-[rgb(12_12_14/0.62)] px-2 py-1 sm:right-6 sm:top-[max(env(safe-area-inset-top),1.5rem)]'>
               <span className='text-[0.6rem] uppercase tracking-[0.14em] text-[rgb(223_230_227/0.82)] sm:text-[0.66rem]'>
                 {copy.splash.languageLabel}
               </span>
@@ -149,7 +200,7 @@ export default function SplashScreen({
               })}
             </div>
 
-            <section className='relative flex min-h-[100svh] items-center justify-center px-5 pb-[calc(env(safe-area-inset-bottom)+7rem)] pt-14 sm:px-8 sm:pb-20'>
+            <section className='relative h-[100dvh] min-h-[100svh] overflow-y-auto px-5 pb-[calc(env(safe-area-inset-bottom)+9.5rem)] pt-[max(env(safe-area-inset-top),3.75rem)] sm:px-8 sm:pb-[calc(env(safe-area-inset-bottom)+7.5rem)] sm:pt-20'>
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -158,7 +209,7 @@ export default function SplashScreen({
                   ease: [0.22, 1, 0.36, 1],
                   delay: 0.1
                 }}
-                className='w-full max-w-[30rem] text-center'
+                className='mx-auto w-full max-w-[30rem] text-center'
               >
                 <p className='text-[0.68rem] font-semibold uppercase tracking-[0.27em] text-[rgb(223_230_227/0.92)]'>
                   {copy.hero.title}
@@ -190,17 +241,28 @@ export default function SplashScreen({
                     {finalRecipient}
                   </p>
                 </div>
-
-                <motion.button
-                  type='button'
-                  onClick={handleOpenInvitation}
-                  whileTap={{ scale: 0.98 }}
-                  className='mx-auto mt-8 inline-flex items-center gap-2 rounded-full border border-[rgb(223_230_227/0.88)] bg-[rgb(12_12_14/0.62)] px-5 py-3 text-base font-semibold text-[var(--color-neutral-strong)] shadow-[0_14px_40px_rgb(0_0_0/0.36)] transition hover:bg-[rgb(28_28_30/0.8)]'
-                >
-                  <EnvelopeSimple size={17} weight='fill' aria-hidden='true' />
-                  {copy.splash.openButton}
-                </motion.button>
               </motion.div>
+
+              <div className='pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+3.75rem)] z-40 flex justify-center px-5 sm:bottom-[calc(env(safe-area-inset-bottom)+1.5rem)] sm:px-8'>
+                <div className='pointer-events-auto flex flex-col items-center gap-2'>
+                  {!canOpenInvitation ? (
+                    <p className='max-w-xs text-center text-[0.66rem] leading-relaxed text-[rgb(252_165_165/0.9)]'>
+                      {copy.splash.invalidLinkHint}
+                    </p>
+                  ) : null}
+
+                  <motion.button
+                    type='button'
+                    onClick={handleOpenInvitation}
+                    whileTap={canOpenInvitation ? { scale: 0.98 } : undefined}
+                    disabled={!canOpenInvitation}
+                    className='inline-flex items-center gap-2 rounded-full border border-[rgb(223_230_227/0.88)] bg-[rgb(12_12_14/0.62)] px-5 py-3 text-base font-semibold text-[var(--color-neutral-strong)] shadow-[0_14px_40px_rgb(0_0_0/0.36)] transition hover:bg-[rgb(28_28_30/0.8)] disabled:cursor-not-allowed disabled:border-[rgb(182_186_192/0.35)] disabled:bg-[rgb(12_12_14/0.36)] disabled:text-[rgb(182_186_192/0.78)] disabled:shadow-none disabled:hover:bg-[rgb(12_12_14/0.36)]'
+                  >
+                    <EnvelopeSimple size={17} weight='fill' aria-hidden='true' />
+                    {copy.splash.openButton}
+                  </motion.button>
+                </div>
+              </div>
             </section>
           </motion.div>
         ) : null}
