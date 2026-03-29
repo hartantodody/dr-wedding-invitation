@@ -129,8 +129,10 @@ export default function GallerySection({
     mass: 0.46
   })
   const x = useTransform(
-    [xLinear, xSpring, scrollYProgress],
-    ([linear, spring, progress]) => {
+    [xLinear, xSpring, scrollYProgress] as const,
+    (latest) => {
+      const [linear, spring, progress] = latest as [number, number, number]
+
       if (useStableIosMode) return linear
 
       const p = clamp(progress, 0, 1)
