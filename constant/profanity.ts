@@ -17,7 +17,10 @@ const PROFANITY_WORDS = [
   'asshole',
   'dick',
   'pussy',
-  'shit'
+  'shit',
+  'ewe',
+  'seggs',
+  'sex'
 ]
 
 const PROFANITY_SHORTCUTS = new Set([
@@ -40,7 +43,7 @@ const LEET_REPLACEMENTS: Record<string, string> = {
   '5': 's',
   '7': 't',
   '@': 'a',
-  '$': 's',
+  $: 's',
   '!': 'i'
 }
 
@@ -51,7 +54,10 @@ function toConsonantSignature(value: string): string {
 function normalizeInput(value: string): string {
   return value
     .toLowerCase()
-    .replace(/[013457@$!]/g, (character) => LEET_REPLACEMENTS[character] ?? character)
+    .replace(
+      /[013457@$!]/g,
+      (character) => LEET_REPLACEMENTS[character] ?? character
+    )
     .normalize('NFKD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z\s]/g, ' ')

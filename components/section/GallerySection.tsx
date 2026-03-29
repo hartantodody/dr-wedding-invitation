@@ -4,6 +4,7 @@ import { CaretLeft, CaretRight, X } from '@phosphor-icons/react'
 import {
   AnimatePresence,
   motion,
+  useReducedMotion,
   useMotionValueEvent,
   useScroll,
   useSpring,
@@ -64,6 +65,17 @@ export default function GallerySection({
     {}
   )
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
+  const [isIosBrowser] = useState(() => {
+    if (typeof window === 'undefined') return false
+
+    const userAgent = window.navigator.userAgent
+    const platform = window.navigator.platform
+    const hasMacTouchPoints =
+      platform === 'MacIntel' && window.navigator.maxTouchPoints > 1
+
+    return /iPad|iPhone|iPod/.test(userAgent) || hasMacTouchPoints
+  })
+  const prefersReducedMotion = useReducedMotion()
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -76,15 +88,18 @@ export default function GallerySection({
     mass: 0.62
   })
 
+  const useStableIosMode = isIosBrowser || prefersReducedMotion
+  const progressForX = useStableIosMode ? scrollYProgress : smoothProgress
+
   const x = useTransform(
-    smoothProgress,
+    progressForX,
     (value) => -maxTranslate * clamp(value, 0, 1)
   )
-  const progressScaleX = useTransform(smoothProgress, (value) =>
+  const progressScaleX = useTransform(progressForX, (value) =>
     clamp(value, 0, 1)
   )
 
-  useMotionValueEvent(smoothProgress, 'change', (value) => {
+  useMotionValueEvent(progressForX, 'change', (value) => {
     const nextSlide = Math.min(
       galleryItems.length,
       Math.floor(clamp(value, 0, 1) * galleryItems.length) + 1
@@ -280,18 +295,26 @@ export default function GallerySection({
           background:
             'radial-gradient(130% 88% at 8% 6%, transparent 58%, rgb(200 180 139 / 0.18) 58.5%, transparent 59.2%), radial-gradient(108% 84% at 35% 35%, transparent 57%, rgb(200 180 139 / 0.14) 57.5%, transparent 58.4%), radial-gradient(130% 90% at 60% 20%, transparent 56%, rgb(200 180 139 / 0.12) 56.5%, transparent 57.4%), radial-gradient(130% 90% at 90% 62%, transparent 55%, rgb(200 180 139 / 0.1) 55.5%, transparent 56.4%)'
         }}
-        animate={{
-          rotate: [0, 1.8, -1.2, 0],
-          x: [0, 16, -10, 0],
-          y: [0, -14, 8, 0],
-          scale: [1, 1.03, 0.99, 1],
-          opacity: [0.72, 0.84, 0.76, 0.72]
-        }}
-        transition={{
-          duration: 32,
-          repeat: Number.POSITIVE_INFINITY,
-          ease: 'easeInOut'
-        }}
+        animate={
+          useStableIosMode
+            ? undefined
+            : {
+                rotate: [0, 1.8, -1.2, 0],
+                x: [0, 16, -10, 0],
+                y: [0, -14, 8, 0],
+                scale: [1, 1.03, 0.99, 1],
+                opacity: [0.72, 0.84, 0.76, 0.72]
+              }
+        }
+        transition={
+          useStableIosMode
+            ? undefined
+            : {
+                duration: 32,
+                repeat: Number.POSITIVE_INFINITY,
+                ease: 'easeInOut'
+              }
+        }
       />
       <div className='pointer-events-none absolute inset-0 opacity-[0.07] [background-image:radial-gradient(rgb(223_230_227/0.18)_0.5px,transparent_0.5px)] [background-size:4px_4px]' />
 
@@ -327,7 +350,9 @@ export default function GallerySection({
           <motion.div
             ref={trackRef}
             style={{ x }}
-            className='relative flex h-full items-center gap-6 px-[12vw] will-change-transform sm:gap-7 sm:px-[15vw] lg:px-[18vw]'
+            className={`relative flex h-full items-center gap-6 px-[12vw] sm:gap-7 sm:px-[15vw] lg:px-[18vw] ${
+              useStableIosMode ? '' : 'will-change-transform'
+            }`}
           >
             <motion.article
               initial={{ opacity: 0, y: 26 }}
