@@ -30,6 +30,42 @@ type ImageMeta = {
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value))
 
+const fitByRatio = (options: {
+  ratio: number
+  targetWidth: number
+  minWidth: number
+  maxWidth: number
+  minHeight: number
+  maxHeight: number
+}) => {
+  const { ratio, targetWidth, minWidth, maxWidth, minHeight, maxHeight } =
+    options
+  let width = clamp(targetWidth, minWidth, maxWidth)
+  let height = width / ratio
+
+  if (height > maxHeight) {
+    height = maxHeight
+    width = height * ratio
+  }
+
+  if (height < minHeight) {
+    height = minHeight
+    width = height * ratio
+  }
+
+  if (width > maxWidth) {
+    width = maxWidth
+    height = width / ratio
+  }
+
+  if (width < minWidth) {
+    width = minWidth
+    height = width / ratio
+  }
+
+  return { width, height }
+}
+
 const cardHeightFactors = [0.56, 0.37, 0.44, 0.33, 0.52] as const
 
 const offsetVariants = [
@@ -82,24 +118,36 @@ export default function GallerySection({
     offset: ['start start', 'end end']
   })
 
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 72,
-    damping: 34,
-    mass: 0.62
-  })
-
   const useStableIosMode = isIosBrowser || prefersReducedMotion
-  const progressForX = useStableIosMode ? scrollYProgress : smoothProgress
 
-  const x = useTransform(
-    progressForX,
-    (value) => -maxTranslate * clamp(value, 0, 1)
+  const xLinear = useTransform(scrollYProgress, (value) =>
+    -maxTranslate * clamp(value, 0, 1)
   )
-  const progressScaleX = useTransform(progressForX, (value) =>
+  const xSpring = useSpring(xLinear, {
+    stiffness: 165,
+    damping: 31,
+    mass: 0.46
+  })
+  const x = useTransform(
+    [xLinear, xSpring, scrollYProgress],
+    ([linear, spring, progress]) => {
+      if (useStableIosMode) return linear
+
+      const p = clamp(progress, 0, 1)
+
+      if (p >= 0.9) {
+        const t = (p - 0.9) / 0.1
+        return spring + (linear - spring) * t
+      }
+
+      return spring
+    }
+  )
+  const progressScaleX = useTransform(scrollYProgress, (value) =>
     clamp(value, 0, 1)
   )
 
-  useMotionValueEvent(progressForX, 'change', (value) => {
+  useMotionValueEvent(scrollYProgress, 'change', (value) => {
     const nextSlide = Math.min(
       galleryItems.length,
       Math.floor(clamp(value, 0, 1) * galleryItems.length) + 1
@@ -213,13 +261,19 @@ export default function GallerySection({
     }
 
     updateMeasurements()
+    const settleTimerFast = window.setTimeout(updateMeasurements, 120)
+    const settleTimerSlow = window.setTimeout(updateMeasurements, 520)
 
     const resizeObserver = new ResizeObserver(updateMeasurements)
     resizeObserver.observe(track)
     window.addEventListener('resize', scheduleUpdateMeasurements)
+    window.addEventListener('load', scheduleUpdateMeasurements)
 
     return () => {
       window.removeEventListener('resize', scheduleUpdateMeasurements)
+      window.removeEventListener('load', scheduleUpdateMeasurements)
+      window.clearTimeout(settleTimerFast)
+      window.clearTimeout(settleTimerSlow)
       if (rafId) {
         window.cancelAnimationFrame(rafId)
       }
@@ -371,8 +425,15 @@ export default function GallerySection({
 
             {galleryItems.map((item, index) => {
               const meta = imageMetaMap[item.id]
-              const imageRatio = clamp(meta?.ratio ?? 1, 0.58, 1.82)
-              const orientation = meta?.orientation ?? 'landscape'
+              const orientation =
+                item.orientation ?? meta?.orientation ?? 'landscape'
+              const fallbackRatio =
+                orientation === 'landscape'
+                  ? 1.48
+                  : orientation === 'portrait'
+                    ? 0.68
+                    : 1
+              const imageRatio = clamp(meta?.ratio ?? fallbackRatio, 0.58, 1.82)
               const heightFactor =
                 cardHeightFactors[index % cardHeightFactors.length]
               const isMobileViewport = viewportSize.width < 768
@@ -382,47 +443,62 @@ export default function GallerySection({
 
               if (isMobileViewport) {
                 if (orientation === 'landscape') {
-                  const desiredLandscapeHeightPx = clamp(
-                    viewportSize.height * 0.44,
-                    300,
-                    460
-                  )
-
-                  const widthFromHeightPx =
-                    desiredLandscapeHeightPx * imageRatio
-                  cardWidthPx = clamp(
-                    widthFromHeightPx,
-                    viewportSize.width * 1.12,
-                    viewportSize.width * 1.85
-                  )
-                  cardHeightPx = clamp(cardWidthPx / imageRatio, 280, 460)
+                  const landscapeFit = fitByRatio({
+                    ratio: imageRatio,
+                    targetWidth: viewportSize.width * 1.24,
+                    minWidth: viewportSize.width * 0.94,
+                    maxWidth: viewportSize.width * 1.72,
+                    minHeight: 240,
+                    maxHeight: clamp(viewportSize.height * 0.58, 280, 500)
+                  })
+                  cardWidthPx = landscapeFit.width
+                  cardHeightPx = landscapeFit.height
                 } else {
-                  const mobileWidthTargetPx =
-                    orientation === 'portrait'
-                      ? viewportSize.width * 0.68
-                      : viewportSize.width * 0.78
-
-                  cardWidthPx = clamp(mobileWidthTargetPx, 220, 410)
-                  const mobileHeightTargetPx = cardWidthPx / imageRatio
-
-                  cardHeightPx = clamp(
-                    mobileHeightTargetPx,
-                    240,
-                    Math.round(viewportSize.height * 0.76)
-                  )
+                  const portraitFit = fitByRatio({
+                    ratio: imageRatio,
+                    targetWidth:
+                      orientation === 'portrait'
+                        ? viewportSize.width * 0.72
+                        : viewportSize.width * 0.78,
+                    minWidth: 220,
+                    maxWidth: 430,
+                    minHeight: 260,
+                    maxHeight: Math.round(viewportSize.height * 0.78)
+                  })
+                  cardWidthPx = portraitFit.width
+                  cardHeightPx = portraitFit.height
                 }
               } else {
-                const baseHeightPx = viewportSize.height * heightFactor
-                cardHeightPx = clamp(baseHeightPx, 220, 780)
-                const computedWidthPx = cardHeightPx * imageRatio
-                const minWidthPx =
-                  orientation === 'portrait'
-                    ? 190
-                    : orientation === 'square'
-                      ? 230
-                      : 260
-                const maxWidthPx = Math.round(viewportSize.width * 0.68)
-                cardWidthPx = clamp(computedWidthPx, minWidthPx, maxWidthPx)
+                const desktopFit = fitByRatio({
+                  ratio: imageRatio,
+                  targetWidth: viewportSize.height * heightFactor * imageRatio,
+                  minWidth:
+                    orientation === 'portrait'
+                      ? 190
+                      : orientation === 'square'
+                        ? 230
+                        : 260,
+                  maxWidth: Math.round(viewportSize.width * 0.68),
+                  minHeight: 220,
+                  maxHeight: 780
+                })
+
+                cardWidthPx = desktopFit.width
+                cardHeightPx = desktopFit.height
+              }
+
+              if (
+                !Number.isFinite(cardWidthPx) ||
+                !Number.isFinite(cardHeightPx) ||
+                cardWidthPx <= 0 ||
+                cardHeightPx <= 0
+              ) {
+                cardWidthPx = clamp(viewportSize.width * 0.7, 220, 540)
+                cardHeightPx = clamp(
+                  cardWidthPx / (imageRatio || 1),
+                  240,
+                  viewportSize.height * 0.78
+                )
               }
 
               const offsetClass =

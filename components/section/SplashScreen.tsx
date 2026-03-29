@@ -200,7 +200,7 @@ export default function SplashScreen({
               })}
             </div>
 
-            <section className='relative h-[100dvh] min-h-[100svh] overflow-y-auto px-5 pb-[calc(env(safe-area-inset-bottom)+9.5rem)] pt-[max(env(safe-area-inset-top),3.75rem)] sm:px-8 sm:pb-[calc(env(safe-area-inset-bottom)+7.5rem)] sm:pt-20'>
+            <section className='relative h-[100dvh] min-h-[100svh] overflow-y-auto px-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-[max(env(safe-area-inset-top),3.75rem)] sm:px-8 sm:pb-[calc(env(safe-area-inset-bottom)+7.5rem)] sm:pt-20'>
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -219,8 +219,8 @@ export default function SplashScreen({
                   {INVITATION_EVENT.brideName}
                 </h1>
 
-                <div className='mx-auto mt-5 w-[min(74vw,18.5rem)] sm:w-[min(60vw,22rem)]'>
-                  <div className='relative aspect-[0.74] overflow-hidden rounded-t-[999px] rounded-b-[2rem] border border-[rgb(223_230_227/0.5)] bg-[rgb(9_9_10)] shadow-[0_20px_55px_rgb(0_0_0/0.38)]'>
+                <div className='mx-auto mt-5 w-[min(68vw,18.5rem)] sm:w-[min(60vw,22rem)]'>
+                  <div className='relative h-[min(41dvh,23rem)] overflow-hidden rounded-t-[999px] rounded-b-[2rem] border border-[rgb(223_230_227/0.5)] bg-[rgb(9_9_10)] shadow-[0_20px_55px_rgb(0_0_0/0.38)] sm:h-auto sm:aspect-[0.74]'>
                     <Image
                       src='/images/splash-screen.jpeg'
                       alt='Dody and Ritza'
@@ -241,9 +241,28 @@ export default function SplashScreen({
                     {finalRecipient}
                   </p>
                 </div>
+
+                <div className='mt-6 flex flex-col items-center gap-2 sm:hidden'>
+                  {!canOpenInvitation ? (
+                    <p className='max-w-xs text-center text-[0.66rem] leading-relaxed text-[rgb(252_165_165/0.9)]'>
+                      {copy.splash.invalidLinkHint}
+                    </p>
+                  ) : null}
+
+                  <motion.button
+                    type='button'
+                    onClick={handleOpenInvitation}
+                    whileTap={canOpenInvitation ? { scale: 0.98 } : undefined}
+                    disabled={!canOpenInvitation}
+                    className='inline-flex items-center gap-2 rounded-full border border-[rgb(223_230_227/0.88)] bg-[rgb(12_12_14/0.62)] px-5 py-3 text-base font-semibold text-[var(--color-neutral-strong)] shadow-[0_14px_40px_rgb(0_0_0/0.36)] transition hover:bg-[rgb(28_28_30/0.8)] disabled:cursor-not-allowed disabled:border-[rgb(182_186_192/0.35)] disabled:bg-[rgb(12_12_14/0.36)] disabled:text-[rgb(182_186_192/0.78)] disabled:shadow-none disabled:hover:bg-[rgb(12_12_14/0.36)]'
+                  >
+                    <EnvelopeSimple size={17} weight='fill' aria-hidden='true' />
+                    {copy.splash.openButton}
+                  </motion.button>
+                </div>
               </motion.div>
 
-              <div className='pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+3.75rem)] z-40 flex justify-center px-5 sm:bottom-[calc(env(safe-area-inset-bottom)+1.5rem)] sm:px-8'>
+              <div className='pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+1.5rem)] z-40 hidden justify-center px-8 sm:flex'>
                 <div className='pointer-events-auto flex flex-col items-center gap-2'>
                   {!canOpenInvitation ? (
                     <p className='max-w-xs text-center text-[0.66rem] leading-relaxed text-[rgb(252_165_165/0.9)]'>

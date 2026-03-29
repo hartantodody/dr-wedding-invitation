@@ -143,10 +143,15 @@ export default function Hero({ language }: HeroProps) {
             </p>
 
             <div
-              className={`mt-4 max-w-[44rem] text-[var(--color-neutral-strong)] sm:mt-5 sm:max-w-[64rem] md:mt-7 md:max-w-[110rem] ${
+              className={`mt-4 text-[var(--color-neutral-strong)] sm:mt-5 md:mt-7 ${
                 isRightAligned ? 'ml-auto' : 'mr-auto'
               }`}
             >
+              <div
+                className={`w-[16.5rem] sm:w-[21rem] md:w-[27rem] lg:w-[31rem] ${
+                  isRightAligned ? 'origin-right' : 'origin-left'
+                }`}
+              >
               <Signature
                 className='w-full'
                 strokeDuration={3.8}
@@ -154,6 +159,7 @@ export default function Hero({ language }: HeroProps) {
                 fillFadeDuration={1.1}
                 strokeWidth={0.28}
               />
+              </div>
             </div>
           </motion.div>
         </div>

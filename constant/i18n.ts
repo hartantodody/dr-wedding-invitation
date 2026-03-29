@@ -237,8 +237,9 @@ export const COPY: Record<AppLanguage, AppCopy> = {
       hide: 'Sembunyi'
     },
     footer: {
-      title: 'Designed and coded by the groom',
-      subtitle: 'Copywriting and quality assurance by the bride.'
+      title:
+        'Designed and coded by the groom, Copywriting and quality assurance by the bride.',
+      subtitle: ''
     },
     music: {
       play: 'Putar Musik',
@@ -364,8 +365,9 @@ export const COPY: Record<AppLanguage, AppCopy> = {
       hide: 'Hide'
     },
     footer: {
-      title: 'Designed and coded by the groom',
-      subtitle: 'Copywriting and quality assurance by the bride.'
+      title:
+        'Designed and coded by the groom, Copywriting and quality assurance by the bride.',
+      subtitle: ''
     },
     music: {
       play: 'Play Music',

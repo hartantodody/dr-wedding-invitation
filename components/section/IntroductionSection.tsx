@@ -13,6 +13,10 @@ export default function IntroductionSection({
   language
 }: IntroductionSectionProps) {
   const copy = COPY[language]
+  const groomFatherName = INVITATION_EVENT.groomParents[0][language]
+  const groomMotherName = INVITATION_EVENT.groomParents[1][language]
+  const brideFatherName = INVITATION_EVENT.brideParents[0][language]
+  const brideMotherName = INVITATION_EVENT.brideParents[1][language]
   const sectionRef = useRef<HTMLElement | null>(null)
 
   const { scrollYProgress } = useScroll({
@@ -146,7 +150,9 @@ export default function IntroductionSection({
             <div
               aria-hidden='true'
               className='absolute inset-0 bg-cover bg-center'
-              style={{ backgroundImage: "url('/intro-dody.jpg')" }}
+              style={{
+                backgroundImage: "url('/images/intro/intro-dody.webp')"
+              }}
             />
             <div className='absolute inset-0 bg-[linear-gradient(180deg,rgb(5_5_7/0.06)_0%,rgb(5_5_7/0.2)_44%,rgb(5_5_7/0.58)_78%,rgb(5_5_7/0.92)_100%)]' />
             <div className='absolute inset-x-0 bottom-0 h-[54%] bg-[linear-gradient(180deg,transparent_0%,rgb(5_5_7/0.74)_52%,rgb(5_5_7/0.96)_100%)]' />
@@ -154,18 +160,16 @@ export default function IntroductionSection({
               <p className='absolute right-5 top-5 text-[0.66rem] uppercase tracking-[0.2em] text-[rgb(223_230_227/0.88)] sm:right-6 sm:top-6'>
                 {copy.introduction.groomLabel}
               </p>
-              <h3
-                className='mt-1 text-3xl font-semibold text-[var(--color-neutral-strong)] sm:text-4xl'
-              >
+              <h3 className='mt-1 text-3xl font-semibold text-[var(--color-neutral-strong)] sm:text-4xl'>
                 {INVITATION_EVENT.groomFullName}
               </h3>
               <p className='mt-4 text-[0.64rem] uppercase tracking-[0.16em] text-[var(--color-accent-soft)]'>
                 {copy.introduction.groomPrefix}
               </p>
               <p className='mt-2 text-sm leading-relaxed text-[rgb(223_230_227/0.9)]'>
-                {INVITATION_EVENT.groomParents[0]}
+                {groomFatherName}
                 <br />
-                &amp; {INVITATION_EVENT.groomParents[1]}
+                &amp; {groomMotherName}
               </p>
             </div>
           </article>
@@ -179,7 +183,9 @@ export default function IntroductionSection({
             <div
               aria-hidden='true'
               className='absolute inset-0 bg-cover bg-center'
-              style={{ backgroundImage: "url('/intro-ritza.jpg')" }}
+              style={{
+                backgroundImage: "url('/images/intro/intro-ritza.webp')"
+              }}
             />
             <div className='absolute inset-0 bg-[linear-gradient(180deg,rgb(5_5_7/0.06)_0%,rgb(5_5_7/0.2)_44%,rgb(5_5_7/0.58)_78%,rgb(5_5_7/0.92)_100%)]' />
             <div className='absolute inset-x-0 bottom-0 h-[54%] bg-[linear-gradient(180deg,transparent_0%,rgb(5_5_7/0.74)_52%,rgb(5_5_7/0.96)_100%)]' />
@@ -194,9 +200,9 @@ export default function IntroductionSection({
                 {copy.introduction.bridePrefix}
               </p>
               <p className='mt-2 text-sm leading-relaxed text-[rgb(223_230_227/0.9)]'>
-                {INVITATION_EVENT.brideParents[0]}
+                {brideFatherName}
                 <br />
-                &amp; {INVITATION_EVENT.brideParents[1]}
+                &amp; {brideMotherName}
               </p>
             </div>
           </article>

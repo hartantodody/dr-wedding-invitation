@@ -3,7 +3,11 @@
 import { CalendarDots, MapPinLine } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 import { COPY, type AppLanguage } from '@/constant/i18n'
-import { INVITATION_EVENT, type ReceptionShiftId } from '@/constant/invitation'
+import {
+  buildSaveTheDateUrl,
+  INVITATION_EVENT,
+  type ReceptionShiftId
+} from '@/constant/invitation'
 import CountdownTimer from './CountdownTimer'
 
 type SaveTheDateSectionProps = {
@@ -30,6 +34,10 @@ export default function SaveTheDateSection({
   )
   const showBreakBetweenShiftOneAndTwo =
     activeShiftIds.includes(1) && activeShiftIds.includes(2)
+  const saveTheDateUrl = buildSaveTheDateUrl({
+    language,
+    receptionShiftIds: activeShiftIds
+  })
 
   return (
     <section
@@ -105,10 +113,10 @@ export default function SaveTheDateSection({
           className='mx-auto mt-10 max-w-4xl text-center'
         >
           <p className='text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent-soft)]'>
-            {INVITATION_EVENT.eventDayLabel}
+            {INVITATION_EVENT.eventDayLabel[language]}
           </p>
           <p className='mt-3 text-5xl font-semibold text-[var(--color-neutral-strong)] sm:text-6xl'>
-            {INVITATION_EVENT.eventDateLabel}
+            {INVITATION_EVENT.eventDateLabel[language]}
           </p>
         </motion.div>
 
@@ -221,7 +229,7 @@ export default function SaveTheDateSection({
           className='mx-auto mt-8 flex max-w-4xl flex-col justify-center gap-3 sm:flex-row'
         >
           <a
-            href={INVITATION_EVENT.saveTheDateUrl}
+            href={saveTheDateUrl}
             target='_blank'
             rel='noopener noreferrer'
             className='inline-flex items-center justify-center gap-2 rounded-full bg-[rgb(223_230_227/0.14)] px-5 py-3 text-sm font-semibold text-[var(--color-neutral-strong)] transition hover:bg-[rgb(223_230_227/0.24)]'

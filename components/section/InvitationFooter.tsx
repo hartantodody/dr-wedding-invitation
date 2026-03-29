@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { COPY, type AppLanguage } from '@/constant/i18n'
-import { INVITATION_EVENT } from '@/constant/invitation'
+import Signature from '../animation/signature/Signature'
 
 type InvitationFooterProps = {
   language: AppLanguage
@@ -15,6 +15,7 @@ const revealTransition = {
 
 export default function InvitationFooter({ language }: InvitationFooterProps) {
   const copy = COPY[language]
+  const hasSubtitle = copy.footer.subtitle.trim().length > 0
 
   return (
     <footer className='relative overflow-hidden px-5 pb-[calc(env(safe-area-inset-bottom)+2rem)] pt-10 sm:px-8 sm:pt-12'>
@@ -28,15 +29,23 @@ export default function InvitationFooter({ language }: InvitationFooterProps) {
         transition={revealTransition}
         className='relative mx-auto w-full max-w-5xl border-t border-[rgb(223_230_227/0.18)] py-6 text-center sm:py-8'
       >
-        <p className='text-[0.66rem] uppercase tracking-[0.2em] text-[rgb(182_186_192/0.84)]'>
+        <p className='mx-auto max-w-2xl text-xs leading-relaxed text-[rgb(182_186_192/0.84)] sm:text-sm'>
           {copy.footer.title}
         </p>
-        <p className='mt-2 text-base text-[var(--color-neutral-strong)] sm:text-lg'>
-          {INVITATION_EVENT.groomName} &amp; {INVITATION_EVENT.brideName}
-        </p>
-        <p className='mt-2 text-sm text-[rgb(223_230_227/0.82)]'>
-          {copy.footer.subtitle}
-        </p>
+        {hasSubtitle ? (
+          <p className='mt-2 text-sm text-[rgb(223_230_227/0.82)]'>
+            {copy.footer.subtitle}
+          </p>
+        ) : null}
+        <div className='mx-auto mt-4 w-[9.5rem] text-[var(--color-neutral-strong)] sm:w-[12rem]'>
+          <Signature
+            className='w-full'
+            strokeDuration={2.6}
+            fillStartAt={0.58}
+            fillFadeDuration={0.9}
+            strokeWidth={0.34}
+          />
+        </div>
       </motion.div>
     </footer>
   )
