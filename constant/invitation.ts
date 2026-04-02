@@ -86,16 +86,31 @@ export const INVITATION_EVENT = {
     id: 'Sabtu',
     en: 'Saturday'
   } as const,
-  ceremonyTimeLabel: '09.00 - 10.00',
+  ceremonyTimeLabel: '09.00 - 10.00 WITA',
   ceremonyTime: {
     start: '09:00',
     end: '10:00'
   } as const,
-  receptionBreakTimeLabel: '12.00 - 13.00',
+  receptionBreakTimeLabel: '12.00 - 13.00 WITA',
   receptionShifts: [
-    { id: 1, timeLabel: '10.00 - 12.00', startTime: '10:00', endTime: '12:00' },
-    { id: 2, timeLabel: '13.00 - 15.00', startTime: '13:00', endTime: '15:00' },
-    { id: 3, timeLabel: '15.00 - 17.00', startTime: '15:00', endTime: '17:00' }
+    {
+      id: 1,
+      timeLabel: '10.00 - 12.00 WITA',
+      startTime: '10:00',
+      endTime: '12:00'
+    },
+    {
+      id: 2,
+      timeLabel: '13.00 - 15.00 WITA',
+      startTime: '13:00',
+      endTime: '15:00'
+    },
+    {
+      id: 3,
+      timeLabel: '15.00 - 17.00 WITA',
+      startTime: '15:00',
+      endTime: '17:00'
+    }
   ] as const,
   venueName: 'Suly Resort Ubud',
   venueAddress:

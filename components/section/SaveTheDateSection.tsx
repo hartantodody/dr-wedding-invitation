@@ -29,8 +29,8 @@ export default function SaveTheDateSection({
     receptionShiftIds && receptionShiftIds.length > 0
       ? receptionShiftIds
       : INVITATION_EVENT.receptionShifts.map((shift) => shift.id)
-  const visibleReceptionShifts = INVITATION_EVENT.receptionShifts.filter((shift) =>
-    activeShiftIds.includes(shift.id)
+  const visibleReceptionShifts = INVITATION_EVENT.receptionShifts.filter(
+    (shift) => activeShiftIds.includes(shift.id)
   )
   const showBreakBetweenShiftOneAndTwo =
     activeShiftIds.includes(1) && activeShiftIds.includes(2)
@@ -112,10 +112,10 @@ export default function SaveTheDateSection({
           transition={{ ...revealTransition, delay: 0.08 }}
           className='mx-auto mt-10 max-w-4xl text-center'
         >
-          <p className='text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent-soft)]'>
+          <p className='text-base font-bold uppercase tracking-[0.24em] text-[var(--color-accent-soft)] sm:text-2xl'>
             {INVITATION_EVENT.eventDayLabel[language]}
           </p>
-          <p className='mt-3 text-5xl font-semibold text-[var(--color-neutral-strong)] sm:text-6xl'>
+          <p className='mt-3 text-[2rem] font-semibold leading-none text-[var(--color-neutral-strong)] sm:text-4xl md:text-[4rem]'>
             {INVITATION_EVENT.eventDateLabel[language]}
           </p>
         </motion.div>
@@ -137,7 +137,9 @@ export default function SaveTheDateSection({
           <p className='mt-4 text-sm uppercase tracking-[0.16em] text-[rgb(182_186_192/0.9)]'>
             {copy.saveTheDate.addressLabel}
           </p>
-          <p className='mt-2 leading-relaxed'>{INVITATION_EVENT.venueAddress}</p>
+          <p className='mt-2 leading-relaxed'>
+            {INVITATION_EVENT.venueAddress}
+          </p>
         </motion.div>
 
         <motion.div
@@ -193,7 +195,8 @@ export default function SaveTheDateSection({
                     </div>
                     {shift.id === 1 && showBreakBetweenShiftOneAndTwo ? (
                       <p className='mt-1 text-sm tracking-[0.01em] text-[rgb(223_230_227/0.84)] md:text-right'>
-                        {INVITATION_EVENT.receptionBreakTimeLabel} {copy.saveTheDate.breakLabel}
+                        {INVITATION_EVENT.receptionBreakTimeLabel}{' '}
+                        {copy.saveTheDate.breakLabel}
                       </p>
                     ) : null}
                   </div>

@@ -1,5 +1,6 @@
 'use client'
 
+import { List, X } from '@phosphor-icons/react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
 import { LANGUAGE_OPTIONS, type AppLanguage } from '@/constant/i18n'
@@ -132,9 +133,14 @@ export default function SectionSidebar({
       <button
         type='button'
         onClick={() => setIsDesktopNavVisible((value) => !value)}
-        className='fixed right-4 top-4 z-40 hidden items-center rounded-full border border-[rgb(223_230_227/0.28)] bg-[rgb(12_12_14/0.82)] px-4 py-2 text-[0.66rem] font-bold uppercase tracking-[0.13em] text-[rgb(223_230_227/0.94)] shadow-[0_14px_40px_rgb(0_0_0/0.44)] transition hover:bg-[rgb(24_24_27/0.9)] md:inline-flex'
+        aria-label={isDesktopNavVisible ? hideNavLabel : showNavLabel}
+        className='fixed right-4 top-4 z-40 hidden h-11 w-11 items-center justify-center rounded-full border border-[rgb(223_230_227/0.28)] bg-[rgb(12_12_14/0.82)] text-[rgb(223_230_227/0.94)] shadow-[0_14px_40px_rgb(0_0_0/0.44)] transition hover:bg-[rgb(24_24_27/0.9)] md:inline-flex'
       >
-        {isDesktopNavVisible ? hideNavLabel : showNavLabel}
+        {isDesktopNavVisible ? (
+          <X size={18} weight='bold' />
+        ) : (
+          <List size={18} weight='bold' />
+        )}
       </button>
 
       <AnimatePresence>
@@ -204,9 +210,10 @@ export default function SectionSidebar({
           onClick={() => setIsMobileMenuOpen(true)}
           aria-expanded={isMobileMenuOpen}
           aria-controls='section-mobile-panel'
-          className='min-w-[4.4rem] rounded-full border border-[rgb(223_230_227/0.3)] bg-[rgb(12_12_14/0.82)] px-3.5 py-2 text-[0.68rem] font-bold uppercase tracking-[0.12em] text-[var(--color-neutral-strong)] shadow-[0_14px_38px_rgb(0_0_0/0.35)] backdrop-blur-md'
+          aria-label={openMenuLabel}
+          className='grid h-11 w-11 place-items-center rounded-full border border-[rgb(223_230_227/0.3)] bg-[rgb(12_12_14/0.82)] text-[var(--color-neutral-strong)] shadow-[0_14px_38px_rgb(0_0_0/0.35)] backdrop-blur-md'
         >
-          {openMenuLabel}
+          <List size={18} weight='bold' />
         </button>
       </div>
 
@@ -245,9 +252,10 @@ export default function SectionSidebar({
                 <button
                   type='button'
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className='rounded-full border border-[rgb(223_230_227/0.2)] bg-[rgb(223_230_227/0.08)] px-3 py-1.5 text-[0.64rem] font-bold uppercase tracking-[0.13em] text-[rgb(223_230_227/0.88)]'
+                  aria-label={closeMenuLabel}
+                  className='grid h-9 w-9 place-items-center rounded-full border border-[rgb(223_230_227/0.2)] bg-[rgb(223_230_227/0.08)] text-[rgb(223_230_227/0.88)]'
                 >
-                  {closeMenuLabel}
+                  <X size={16} weight='bold' />
                 </button>
               </div>
 

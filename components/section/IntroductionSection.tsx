@@ -94,16 +94,16 @@ export default function IntroductionSection({
         >
           <div className='mx-auto max-w-5xl'>
             <p className='text-[1.7rem] leading-relaxed text-[var(--color-accent-soft)] sm:text-[2.1rem]'>
-              {copy.introduction.greetingArab}
-            </p>
-            <p className='mx-auto mt-3 max-w-3xl text-sm leading-relaxed text-[rgb(223_230_227/0.85)] sm:text-base'>
-              {copy.introduction.greetingTranslation}
-            </p>
-            <p className='mt-6 text-[1.55rem] leading-relaxed text-[var(--color-neutral-strong)] sm:text-[2rem]'>
               {copy.introduction.bismillahArab}
             </p>
             <p className='mx-auto mt-3 max-w-3xl text-sm leading-relaxed text-[rgb(223_230_227/0.85)] sm:text-base'>
               {copy.introduction.bismillahTranslation}
+            </p>
+            <p className='mt-6 text-[1.55rem] leading-relaxed text-[var(--color-neutral-strong)] sm:text-[2rem]'>
+              {copy.introduction.greetingArab}
+            </p>
+            <p className='mx-auto mt-3 max-w-3xl text-sm leading-relaxed text-[rgb(223_230_227/0.85)] sm:text-base'>
+              {copy.introduction.greetingTranslation}
             </p>
           </div>
         </motion.div>
@@ -136,9 +136,11 @@ export default function IntroductionSection({
             <p className='mt-3 text-sm font-semibold uppercase leading-relaxed tracking-[0.08em] text-[rgb(223_230_227/0.9)] sm:text-base'>
               {copy.introduction.openingInviteLine1}
             </p>
-            <p className='mt-2 text-sm font-semibold uppercase leading-relaxed tracking-[0.08em] text-[rgb(223_230_227/0.9)] sm:text-base'>
-              {copy.introduction.openingInviteLine2}
-            </p>
+            {copy.introduction.openingInviteLine2 ? (
+              <p className='mt-2 text-sm font-semibold uppercase leading-relaxed tracking-[0.08em] text-[rgb(223_230_227/0.9)] sm:text-base'>
+                {copy.introduction.openingInviteLine2}
+              </p>
+            ) : null}
           </div>
         </motion.div>
 

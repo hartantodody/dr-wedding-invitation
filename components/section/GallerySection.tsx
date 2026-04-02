@@ -120,8 +120,9 @@ export default function GallerySection({
 
   const useStableIosMode = isIosBrowser || prefersReducedMotion
 
-  const xLinear = useTransform(scrollYProgress, (value) =>
-    -maxTranslate * clamp(value, 0, 1)
+  const xLinear = useTransform(
+    scrollYProgress,
+    (value) => -maxTranslate * clamp(value, 0, 1)
   )
   const xSpring = useSpring(xLinear, {
     stiffness: 165,
@@ -155,7 +156,9 @@ export default function GallerySection({
       Math.floor(clamp(value, 0, 1) * galleryItems.length) + 1
     )
 
-    setActiveSlide((previous) => (previous === nextSlide ? previous : nextSlide))
+    setActiveSlide((previous) =>
+      previous === nextSlide ? previous : nextSlide
+    )
   })
 
   useEffect(() => {
@@ -417,7 +420,7 @@ export default function GallerySection({
               transition={{ ...revealTransition, delay: 0.12 }}
               className='pointer-events-none shrink-0'
             >
-              <p className='max-w-[32vw] min-w-[340px] text-4xl font-semibold leading-tight text-[rgb(223_230_227/0.92)] sm:text-6xl'>
+              <p className='max-w-[32vw] min-w-[340px] whitespace-pre-line text-2xl font-semibold leading-tight text-[rgb(223_230_227/0.92)] sm:text-5xl'>
                 {copy.gallery.quote}
               </p>
               <p className='mt-4 text-sm uppercase tracking-[0.24em] text-[var(--color-accent-soft)]'>
@@ -503,8 +506,9 @@ export default function GallerySection({
                 )
               }
 
-              const offsetClass =
-                isMobileViewport ? '' : offsetVariants[index % offsetVariants.length]
+              const offsetClass = isMobileViewport
+                ? ''
+                : offsetVariants[index % offsetVariants.length]
 
               return (
                 <motion.article

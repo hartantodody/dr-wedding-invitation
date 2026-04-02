@@ -171,9 +171,9 @@ export const COPY: Record<AppLanguage, AppCopy> = {
       ayahTranslation:
         'Dan di antara tanda-tanda kebesaran-Nya ialah Dia menciptakan pasangan untukmu dari jenismu sendiri agar kamu merasa tenteram kepadanya, dan Dia menjadikan di antaramu kasih dan sayang.',
       ayahSource: 'QS. Ar-Rum: 21',
-      openingInviteLine1: 'BY THE GRACE AND BLESSING OF ALLAH SWT,',
-      openingInviteLine2:
-        'WE INVITE YOU TO JOIN US IN CELEBRATING THE MARRIAGE OF OUR BELOVED CHILDREN',
+      openingInviteLine1:
+        'Dengan rahmat dan berkah Allah SWT, kami mengundang Anda untuk hadir dan merayakan hari bahagia pernikahan kami',
+      openingInviteLine2: '',
       skipLabel: 'Lewati',
       groomLabel: 'The Groom',
       brideLabel: 'The Bride',
@@ -182,7 +182,7 @@ export const COPY: Record<AppLanguage, AppCopy> = {
     },
     gallery: {
       sectionLabel: 'Galeri',
-      quote: 'Cinta yang tumbuh pelan, tapi pasti.',
+      quote: 'Until the winds forget to roam,\nTill nothing calls them home.',
       quoteCaption: 'Signature Dody & Ritza',
       scrollHint: 'Scroll ke bawah untuk geser gallery'
     },
@@ -302,7 +302,7 @@ export const COPY: Record<AppLanguage, AppCopy> = {
       ayahSource: 'Quran 30:21',
       openingInviteLine1: 'BY THE GRACE AND BLESSING OF ALLAH SWT,',
       openingInviteLine2:
-        'WE INVITE YOU TO JOIN US IN CELEBRATING THE MARRIAGE OF OUR BELOVED CHILDREN',
+        'WE INVITE YOU TO JOIN US IN CELEBRATING OUR MARRIAGE',
       skipLabel: 'Skip',
       groomLabel: 'The Groom',
       brideLabel: 'The Bride',
@@ -311,7 +311,7 @@ export const COPY: Record<AppLanguage, AppCopy> = {
     },
     gallery: {
       sectionLabel: 'Gallery',
-      quote: 'Love that grows slowly, yet surely.',
+      quote: 'Until the winds forget to roam,\nTill nothing calls them home.',
       quoteCaption: 'Dody & Ritza Signature',
       scrollHint: 'Scroll down to glide sideways'
     },
