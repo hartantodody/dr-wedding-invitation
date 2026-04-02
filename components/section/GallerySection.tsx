@@ -338,6 +338,8 @@ export default function GallerySection({
   const selectedItem =
     selectedIndex === null ? null : galleryItems[selectedIndex]
   const selectedPhotoNumber = selectedIndex === null ? 1 : selectedIndex + 1
+  const [quoteLead, ...quoteTailParts] = copy.gallery.quote.split(',')
+  const quoteTail = quoteTailParts.join(',').trimStart()
 
   return (
     <section
@@ -424,10 +426,17 @@ export default function GallerySection({
               className='shrink-0'
             >
               <p className='max-w-[32vw] min-w-[340px] whitespace-pre-line text-2xl font-semibold leading-tight text-[rgb(223_230_227/0.92)] sm:text-5xl'>
-                {copy.gallery.quote}
-              </p>
-              <p className='mt-4 text-sm uppercase tracking-[0.24em] text-[var(--color-accent-soft)]'>
-                {copy.gallery.quoteCaption}
+                {quoteTail ? (
+                  <>
+                    {quoteLead},
+                    <span className='text-[var(--color-accent-soft)]'>
+                      {'\n'}
+                      {quoteTail}
+                    </span>
+                  </>
+                ) : (
+                  copy.gallery.quote
+                )}
               </p>
               <div className='mt-4 flex flex-col gap-1 text-[0.66rem] uppercase tracking-[0.16em] text-[rgb(182_186_192/0.9)] sm:text-xs'>
                 <p>
