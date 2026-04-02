@@ -65,6 +65,8 @@ type AppCopy = {
     sectionLabel: string
     quote: string
     quoteCaption: string
+    photoCreditLabel: string
+    bouquetCreditLabel: string
     scrollHint: string
   }
   weddingGift: {
@@ -183,7 +185,9 @@ export const COPY: Record<AppLanguage, AppCopy> = {
     gallery: {
       sectionLabel: 'Galeri',
       quote: 'Until the winds forget to roam,\nTill nothing calls them home.',
-      quoteCaption: 'Signature Dody & Ritza',
+      quoteCaption: 'April 2026',
+      photoCreditLabel: 'Photo by',
+      bouquetCreditLabel: 'Bouquet by',
       scrollHint: 'Scroll ke bawah untuk geser gallery'
     },
     weddingGift: {
@@ -312,7 +316,9 @@ export const COPY: Record<AppLanguage, AppCopy> = {
     gallery: {
       sectionLabel: 'Gallery',
       quote: 'Until the winds forget to roam,\nTill nothing calls them home.',
-      quoteCaption: 'Dody & Ritza Signature',
+      quoteCaption: 'April 2026',
+      photoCreditLabel: 'Photo by',
+      bouquetCreditLabel: 'Bouquet by',
       scrollHint: 'Scroll down to glide sideways'
     },
     weddingGift: {

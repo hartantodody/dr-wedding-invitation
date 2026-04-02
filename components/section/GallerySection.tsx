@@ -81,6 +81,9 @@ const revealTransition = {
   ease: [0.22, 1, 0.36, 1] as const
 }
 
+const PHOTO_CREDIT_URL = 'https://www.instagram.com/senandikaphoto/'
+const BOUQUET_CREDIT_URL = 'https://www.instagram.com/inflowers_/'
+
 export default function GallerySection({
   language,
   items = GALLERY_ITEMS
@@ -418,7 +421,7 @@ export default function GallerySection({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.35 }}
               transition={{ ...revealTransition, delay: 0.12 }}
-              className='pointer-events-none shrink-0'
+              className='shrink-0'
             >
               <p className='max-w-[32vw] min-w-[340px] whitespace-pre-line text-2xl font-semibold leading-tight text-[rgb(223_230_227/0.92)] sm:text-5xl'>
                 {copy.gallery.quote}
@@ -426,6 +429,30 @@ export default function GallerySection({
               <p className='mt-4 text-sm uppercase tracking-[0.24em] text-[var(--color-accent-soft)]'>
                 {copy.gallery.quoteCaption}
               </p>
+              <div className='mt-4 flex flex-col gap-1 text-[0.66rem] uppercase tracking-[0.16em] text-[rgb(182_186_192/0.9)] sm:text-xs'>
+                <p>
+                  {copy.gallery.photoCreditLabel}{' '}
+                  <a
+                    href={PHOTO_CREDIT_URL}
+                    target='_blank'
+                    rel='noreferrer'
+                    className='pointer-events-auto text-[var(--color-accent-soft)] underline decoration-[rgb(211_188_145/0.52)] underline-offset-4 transition hover:text-[var(--color-neutral-strong)]'
+                  >
+                    @senandikaphoto
+                  </a>
+                </p>
+                <p>
+                  {copy.gallery.bouquetCreditLabel}{' '}
+                  <a
+                    href={BOUQUET_CREDIT_URL}
+                    target='_blank'
+                    rel='noreferrer'
+                    className='pointer-events-auto text-[var(--color-accent-soft)] underline decoration-[rgb(211_188_145/0.52)] underline-offset-4 transition hover:text-[var(--color-neutral-strong)]'
+                  >
+                    @inflowers_
+                  </a>
+                </p>
+              </div>
             </motion.article>
 
             {galleryItems.map((item, index) => {
