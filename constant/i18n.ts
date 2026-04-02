@@ -194,7 +194,7 @@ export const COPY: Record<AppLanguage, AppCopy> = {
       groomAccountLabel: 'Rekening Dody',
       brideAccountLabel: 'Rekening Ritza',
       accountHolderLabel: 'Atas nama',
-      copyButton: 'Salin Nomor',
+      copyButton: 'Salin',
       copiedButton: 'Tersalin'
     },
     rsvp: {
@@ -323,7 +323,7 @@ export const COPY: Record<AppLanguage, AppCopy> = {
       groomAccountLabel: "Dody's Account",
       brideAccountLabel: "Ritza's Account",
       accountHolderLabel: 'Account holder',
-      copyButton: 'Copy Number',
+      copyButton: 'Copy',
       copiedButton: 'Copied'
     },
     rsvp: {
