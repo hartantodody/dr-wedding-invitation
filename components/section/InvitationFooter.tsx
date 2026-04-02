@@ -29,15 +29,7 @@ export default function InvitationFooter({ language }: InvitationFooterProps) {
         transition={revealTransition}
         className='relative mx-auto w-full max-w-5xl border-t border-[rgb(223_230_227/0.18)] py-6 text-center sm:py-8'
       >
-        <p className='mx-auto max-w-2xl text-xs leading-relaxed text-[rgb(182_186_192/0.84)] sm:text-sm'>
-          {copy.footer.title}
-        </p>
-        {hasSubtitle ? (
-          <p className='mt-2 text-sm text-[rgb(223_230_227/0.82)]'>
-            {copy.footer.subtitle}
-          </p>
-        ) : null}
-        <div className='mx-auto mt-4 w-[9.5rem] text-[var(--color-neutral-strong)] sm:w-[12rem]'>
+        <div className='mx-auto mb-4 w-[9.5rem] text-[var(--color-neutral-strong)] sm:mb-5 sm:w-[12rem]'>
           <Signature
             className='w-full'
             strokeDuration={2.6}
@@ -46,6 +38,14 @@ export default function InvitationFooter({ language }: InvitationFooterProps) {
             strokeWidth={0.34}
           />
         </div>
+        <p className='mx-auto max-w-2xl text-xs leading-relaxed text-[rgb(182_186_192/0.84)] sm:text-sm'>
+          {copy.footer.title}
+        </p>
+        {hasSubtitle ? (
+          <p className='mt-2 text-sm text-[rgb(223_230_227/0.82)]'>
+            {copy.footer.subtitle}
+          </p>
+        ) : null}
       </motion.div>
     </footer>
   )
