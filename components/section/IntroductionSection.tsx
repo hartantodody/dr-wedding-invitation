@@ -159,7 +159,7 @@ export default function IntroductionSection({
             <div className='absolute inset-0 bg-[linear-gradient(180deg,rgb(5_5_7/0.06)_0%,rgb(5_5_7/0.2)_44%,rgb(5_5_7/0.58)_78%,rgb(5_5_7/0.92)_100%)]' />
             <div className='absolute inset-x-0 bottom-0 h-[54%] bg-[linear-gradient(180deg,transparent_0%,rgb(5_5_7/0.74)_52%,rgb(5_5_7/0.96)_100%)]' />
             <div className='relative flex h-full flex-col justify-end p-5 sm:p-6'>
-              <p className='absolute right-5 top-5 text-[0.66rem] uppercase tracking-[0.2em] text-[rgb(223_230_227/0.88)] sm:right-6 sm:top-6'>
+              <p className='absolute right-5 top-5 text-[0.66rem] uppercase tracking-[0.2em] text-[var(--color-accent)] sm:right-6 sm:top-6'>
                 {copy.introduction.groomLabel}
               </p>
               <h3 className='mt-1 text-3xl font-semibold text-[var(--color-neutral-strong)] sm:text-4xl'>
@@ -192,7 +192,7 @@ export default function IntroductionSection({
             <div className='absolute inset-0 bg-[linear-gradient(180deg,rgb(5_5_7/0.06)_0%,rgb(5_5_7/0.2)_44%,rgb(5_5_7/0.58)_78%,rgb(5_5_7/0.92)_100%)]' />
             <div className='absolute inset-x-0 bottom-0 h-[54%] bg-[linear-gradient(180deg,transparent_0%,rgb(5_5_7/0.74)_52%,rgb(5_5_7/0.96)_100%)]' />
             <div className='relative flex h-full flex-col justify-end p-5 text-right sm:p-6'>
-              <p className='absolute left-5 top-5 text-[0.66rem] uppercase tracking-[0.2em] text-[rgb(223_230_227/0.88)] sm:left-6 sm:top-6'>
+              <p className='absolute left-5 top-5 text-[0.66rem] uppercase tracking-[0.2em] text-[var(--color-accent)] sm:left-6 sm:top-6'>
                 {copy.introduction.brideLabel}
               </p>
               <h3 className='mt-1 text-3xl font-semibold text-[var(--color-neutral-strong)] sm:text-4xl'>

@@ -2,6 +2,7 @@
 
 import { COPY, type AppLanguage } from '@/constant/i18n'
 import { type ReceptionShiftId } from '@/constant/invitation'
+import MobileIdleScrollHint from '../common/MobileIdleScrollHint'
 import GallerySection from './GallerySection'
 import Hero from './Hero'
 import IntroductionSection from './IntroductionSection'
@@ -48,6 +49,7 @@ export default function InvitationContent({
         showNavLabel={copy.sidebar.show}
         hideNavLabel={copy.sidebar.hide}
       />
+      <MobileIdleScrollHint language={language} />
       <Hero language={language} />
       <IntroductionSection language={language} />
       <SaveTheDateSection
