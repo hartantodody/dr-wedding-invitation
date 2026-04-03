@@ -177,9 +177,6 @@ export default function SplashScreen({
             />
 
             <div className='absolute right-4 top-[max(env(safe-area-inset-top),1rem)] z-30 flex items-center gap-2 rounded-full border border-[rgb(223_230_227/0.42)] bg-[rgb(12_12_14/0.62)] px-2 py-1 sm:right-6 sm:top-[max(env(safe-area-inset-top),1.5rem)]'>
-              <span className='text-[0.6rem] uppercase tracking-[0.14em] text-[rgb(223_230_227/0.82)] sm:text-[0.66rem]'>
-                {copy.splash.languageLabel}
-              </span>
               {LANGUAGE_OPTIONS.map((option) => {
                 const isActive = option === language
 
@@ -209,17 +206,19 @@ export default function SplashScreen({
                   ease: [0.22, 1, 0.36, 1],
                   delay: 0.1
                 }}
-                className='mx-auto w-full max-w-[30rem] text-center'
+                className='mx-auto flex min-h-full w-full max-w-[30rem] flex-col justify-between gap-6 text-center'
               >
-                <p className='text-[0.68rem] font-semibold uppercase tracking-[0.27em] text-[rgb(223_230_227/0.92)]'>
-                  {copy.hero.title}
-                </p>
-                <h1 className='mt-3 text-5xl font-semibold text-[var(--color-neutral-strong)] sm:text-6xl'>
-                  {INVITATION_EVENT.groomName} &amp;{' '}
-                  {INVITATION_EVENT.brideName}
-                </h1>
+                <header className='pt-4 sm:pt-5'>
+                  <p className='text-[0.68rem] font-semibold uppercase tracking-[0.27em] text-[rgb(223_230_227/0.92)]'>
+                    {copy.hero.title}
+                  </p>
+                  <h1 className='mt-3 text-3xl font-semibold text-[var(--color-neutral-strong)] sm:text-6xl'>
+                    {INVITATION_EVENT.groomName} &amp;{' '}
+                    {INVITATION_EVENT.brideName}
+                  </h1>
+                </header>
 
-                <div className='mx-auto mt-5 w-[min(68vw,18rem)] sm:w-[min(54vw,21rem)]'>
+                <div className='mx-auto w-[min(62vw,16rem)] sm:w-[min(52vw,21rem)]'>
                   <div className='relative aspect-[0.74] overflow-hidden rounded-t-[999px] rounded-b-[2rem] border border-[rgb(223_230_227/0.5)] bg-[rgb(9_9_10)] shadow-[0_20px_55px_rgb(0_0_0/0.38)]'>
                     <Image
                       src='/images/splash-screen.jpeg'
@@ -233,33 +232,39 @@ export default function SplashScreen({
                   </div>
                 </div>
 
-                <div className='mt-7'>
-                  <p className='text-sm tracking-[0.18em] text-[rgb(223_230_227/0.85)]'>
-                    {copy.splash.to}
-                  </p>
-                  <p className='mt-2 text-[1.75rem] font-semibold text-[var(--color-neutral-strong)] sm:text-3xl'>
-                    {finalRecipient}
-                  </p>
-                </div>
-
-                <div className='mt-6 flex flex-col items-center gap-2'>
-                  {!canOpenInvitation ? (
-                    <p className='max-w-xs text-center text-[0.66rem] leading-relaxed text-[rgb(252_165_165/0.9)]'>
-                      {copy.splash.invalidLinkHint}
+                <footer className='pb-1 sm:pb-2'>
+                  <div>
+                    <p className='text-sm tracking-[0.18em] text-[rgb(223_230_227/0.85)]'>
+                      {copy.splash.to}
                     </p>
-                  ) : null}
+                    <p className='mt-2 text-[1.58rem] font-semibold text-[var(--color-neutral-strong)] sm:text-[2.15rem]'>
+                      {finalRecipient}
+                    </p>
+                  </div>
 
-                  <motion.button
-                    type='button'
-                    onClick={handleOpenInvitation}
-                    whileTap={canOpenInvitation ? { scale: 0.98 } : undefined}
-                    disabled={!canOpenInvitation}
-                    className='inline-flex items-center gap-2 rounded-full border border-[rgb(223_230_227/0.88)] bg-[rgb(12_12_14/0.62)] px-5 py-3 text-base font-semibold text-[var(--color-neutral-strong)] shadow-[0_14px_40px_rgb(0_0_0/0.36)] transition hover:bg-[rgb(28_28_30/0.8)] disabled:cursor-not-allowed disabled:border-[rgb(182_186_192/0.35)] disabled:bg-[rgb(12_12_14/0.36)] disabled:text-[rgb(182_186_192/0.78)] disabled:shadow-none disabled:hover:bg-[rgb(12_12_14/0.36)]'
-                  >
-                    <EnvelopeSimple size={17} weight='fill' aria-hidden='true' />
-                    {copy.splash.openButton}
-                  </motion.button>
-                </div>
+                  <div className='mt-5 flex flex-col items-center gap-2'>
+                    {!canOpenInvitation ? (
+                      <p className='max-w-xs text-center text-[0.66rem] leading-relaxed text-[rgb(252_165_165/0.9)]'>
+                        {copy.splash.invalidLinkHint}
+                      </p>
+                    ) : null}
+
+                    <motion.button
+                      type='button'
+                      onClick={handleOpenInvitation}
+                      whileTap={canOpenInvitation ? { scale: 0.98 } : undefined}
+                      disabled={!canOpenInvitation}
+                      className='inline-flex items-center gap-2 rounded-full border border-[rgb(223_230_227/0.88)] bg-[rgb(12_12_14/0.62)] px-5 py-3 text-base font-semibold text-[var(--color-neutral-strong)] shadow-[0_14px_40px_rgb(0_0_0/0.36)] transition hover:bg-[rgb(28_28_30/0.8)] disabled:cursor-not-allowed disabled:border-[rgb(182_186_192/0.35)] disabled:bg-[rgb(12_12_14/0.36)] disabled:text-[rgb(182_186_192/0.78)] disabled:shadow-none disabled:hover:bg-[rgb(12_12_14/0.36)]'
+                    >
+                      <EnvelopeSimple
+                        size={17}
+                        weight='fill'
+                        aria-hidden='true'
+                      />
+                      {copy.splash.openButton}
+                    </motion.button>
+                  </div>
+                </footer>
               </motion.div>
             </section>
           </motion.div>
