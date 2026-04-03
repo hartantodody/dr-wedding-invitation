@@ -20,13 +20,6 @@ type GallerySectionProps = {
   items?: GalleryItem[]
 }
 
-type ImageMeta = {
-  width: number
-  height: number
-  ratio: number
-  orientation: 'landscape' | 'portrait' | 'square'
-}
-
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value))
 
@@ -100,9 +93,6 @@ export default function GallerySection({
   const [maxTranslate, setMaxTranslate] = useState(0)
   const [sectionHeightPx, setSectionHeightPx] = useState(2800)
   const [viewportSize, setViewportSize] = useState({ width: 1440, height: 900 })
-  const [imageMetaMap, setImageMetaMap] = useState<Record<string, ImageMeta>>(
-    {}
-  )
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
   const [isIosBrowser] = useState(() => {
     if (typeof window === 'undefined') return false
@@ -122,6 +112,7 @@ export default function GallerySection({
   })
 
   const useStableIosMode = isIosBrowser || prefersReducedMotion
+  const shouldAnimateBackdrop = !useStableIosMode && viewportSize.width < 1024
 
   const xLinear = useTransform(
     scrollYProgress,
@@ -163,49 +154,6 @@ export default function GallerySection({
       previous === nextSlide ? previous : nextSlide
     )
   })
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-
-    let isMounted = true
-
-    galleryItems.forEach((item) => {
-      if (imageMetaMap[item.id]) return
-
-      const image = new window.Image()
-      image.onload = () => {
-        if (!isMounted) return
-
-        const width = image.naturalWidth
-        const height = image.naturalHeight
-
-        if (!width || !height) return
-
-        const ratio = width / height
-        const orientation =
-          ratio > 1.02 ? 'landscape' : ratio < 0.98 ? 'portrait' : 'square'
-
-        setImageMetaMap((previous) => {
-          if (previous[item.id]) return previous
-
-          return {
-            ...previous,
-            [item.id]: {
-              width,
-              height,
-              ratio,
-              orientation
-            }
-          }
-        })
-      }
-      image.src = item.image
-    })
-
-    return () => {
-      isMounted = false
-    }
-  }, [galleryItems, imageMetaMap])
 
   useEffect(() => {
     const track = trackRef.current
@@ -287,7 +235,7 @@ export default function GallerySection({
       }
       resizeObserver.disconnect()
     }
-  }, [galleryItems.length, imageMetaMap])
+  }, [galleryItems.length])
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow
@@ -360,24 +308,22 @@ export default function GallerySection({
             'radial-gradient(130% 88% at 8% 6%, transparent 58%, rgb(200 180 139 / 0.18) 58.5%, transparent 59.2%), radial-gradient(108% 84% at 35% 35%, transparent 57%, rgb(200 180 139 / 0.14) 57.5%, transparent 58.4%), radial-gradient(130% 90% at 60% 20%, transparent 56%, rgb(200 180 139 / 0.12) 56.5%, transparent 57.4%), radial-gradient(130% 90% at 90% 62%, transparent 55%, rgb(200 180 139 / 0.1) 55.5%, transparent 56.4%)'
         }}
         animate={
-          useStableIosMode
-            ? undefined
-            : {
-                rotate: [0, 1.8, -1.2, 0],
-                x: [0, 16, -10, 0],
-                y: [0, -14, 8, 0],
-                scale: [1, 1.03, 0.99, 1],
-                opacity: [0.72, 0.84, 0.76, 0.72]
+          shouldAnimateBackdrop
+            ? {
+                x: [0, 10, -7, 0],
+                y: [0, -9, 6, 0],
+                opacity: [0.72, 0.82, 0.75, 0.72]
               }
+            : undefined
         }
         transition={
-          useStableIosMode
-            ? undefined
-            : {
-                duration: 32,
+          shouldAnimateBackdrop
+            ? {
+                duration: 28,
                 repeat: Number.POSITIVE_INFINITY,
                 ease: 'easeInOut'
               }
+            : undefined
         }
       />
       <div className='pointer-events-none absolute inset-0 opacity-[0.07] [background-image:radial-gradient(rgb(223_230_227/0.18)_0.5px,transparent_0.5px)] [background-size:4px_4px]' />
@@ -465,16 +411,28 @@ export default function GallerySection({
             </motion.article>
 
             {galleryItems.map((item, index) => {
-              const meta = imageMetaMap[item.id]
+              const ratioFromMetadata =
+                item.width && item.height ? item.width / item.height : undefined
               const orientation =
-                item.orientation ?? meta?.orientation ?? 'landscape'
+                item.orientation ??
+                (ratioFromMetadata
+                  ? ratioFromMetadata > 1.02
+                    ? 'landscape'
+                    : ratioFromMetadata < 0.98
+                      ? 'portrait'
+                      : 'square'
+                  : 'landscape')
               const fallbackRatio =
                 orientation === 'landscape'
                   ? 1.48
                   : orientation === 'portrait'
                     ? 0.68
                     : 1
-              const imageRatio = clamp(meta?.ratio ?? fallbackRatio, 0.58, 1.82)
+              const imageRatio = clamp(
+                ratioFromMetadata ?? fallbackRatio,
+                0.58,
+                1.82
+              )
               const heightFactor =
                 cardHeightFactors[index % cardHeightFactors.length]
               const isMobileViewport = viewportSize.width < 768
@@ -565,14 +523,16 @@ export default function GallerySection({
                   <button
                     type='button'
                     onClick={() => setSelectedIndex(index)}
-                    className='group relative block h-full w-full overflow-hidden rounded-[1.65rem] border border-[rgb(223_230_227/0.3)] shadow-[0_24px_70px_rgb(0_0_0/0.32),inset_0_1px_0_rgb(223_230_227/0.08)] transition hover:border-[rgb(223_230_227/0.56)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-soft)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(12_12_14)]'
+                    className='group relative block h-full w-full overflow-hidden rounded-[1.65rem] border border-[rgb(223_230_227/0.26)] shadow-[0_16px_42px_rgb(0_0_0/0.28)] transition hover:border-[rgb(223_230_227/0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-soft)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(12_12_14)]'
                     aria-label={`Open photo ${index + 1}`}
                   >
                     <Image
                       src={item.image}
                       alt={item.alt ?? `Pre-wedding photo ${index + 1}`}
                       fill
-                      sizes='(max-width: 768px) 130vw, 48vw'
+                      sizes='(max-width: 768px) 92vw, (max-width: 1280px) 52vw, 44vw'
+                      quality={78}
+                      loading={index < 2 ? 'eager' : 'lazy'}
                       className='object-cover object-center transition duration-700 group-hover:scale-[1.03]'
                     />
                     <div className='absolute inset-0 bg-[radial-gradient(circle_at_24%_18%,rgb(200_180_139/0.14),transparent_44%)]' />
